@@ -1,21 +1,24 @@
 package com.harium.etyl.networking.kryo;
 
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Server;
+import com.harium.etyl.networking.model.BaseServer;
 import com.harium.etyl.networking.model.ByteArrayKey;
 import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.protocol.Protocol;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Server;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
-public abstract class KryoServer extends Server {
+public abstract class KryoServer extends Server implements BaseServer {
 
     protected String name;
     protected int tcpPort = KryoEndpoint.UNDEFINED_PORT;
     protected int udpPort = KryoEndpoint.UNDEFINED_PORT;
 
-    ServerHandler endPoint;
+    protected ServerHandler endPoint;
+    protected Map<String, Peer> peers = new HashMap<>();
 
     public KryoServer() {
         super();
@@ -52,15 +55,24 @@ public abstract class KryoServer extends Server {
     }
 
     protected Connection newConnection() {
-        Peer peer = new Peer();
+        KryoPeer peer = new KryoPeer();
+        peers.put(peer.getId(), peer);
         // By providing our own connection implementation, we can store per
         // connection state without a connection ID to state look up.
-        return peer;
+        return peer.getConnection();
     }
 
     public abstract void joinPeer(Peer peer);
 
     public abstract void leftPeer(Peer peer);
+
+    @Override
+    public void removePeer(String id) {
+        peers.remove(id);
+        /*for(Protocol protocol : protocols.values()) {
+            protocol.removePeer(peer);
+		}*/
+    }
 
     /**
      * Adds the protocol with the default prefix

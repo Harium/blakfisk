@@ -17,7 +17,7 @@ public abstract class HandshakerProtocol extends ProtocolImpl implements Protoco
 	public void addPeer(Peer peer) {
 		String message = handshakeText(peer);
 				
-		server.sendToTCP(peer.getID(), KryoEndpoint.packMessage(prefix, message));
+		server.sendToTCP(peer.getId(), KryoEndpoint.packMessage(prefix, message));
 	}
 	
 	public abstract String handshakeText(Peer peer);

@@ -25,13 +25,13 @@ public class HandShakeServer extends EtylServer {
 		
 	@Override
 	public void joinPeer(Peer peer) {
-		System.out.println("Joined: "+peer.getID());
+		System.out.println("Joined: "+peer.getId());
 		listener.addPeer(peer);
 	}
 
 	@Override
 	public void leftPeer(Peer peer) {
-		System.out.println("Left: "+peer.getID());
+		System.out.println("Left: "+peer.getId());
 		listener.removePeer(peer);
 	}
 	

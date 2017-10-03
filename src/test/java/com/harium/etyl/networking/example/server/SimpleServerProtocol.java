@@ -22,7 +22,7 @@ public class SimpleServerProtocol extends StringServerProtocol {
         System.out.println(getClass().getSimpleName() + " - Received TCP: " + msg);
         receivedTcp = true;
 
-        sendTCPtoAll("Hallu " + peer.getID());
+        sendTCPtoAll("Hallu " + peer.getId());
     }
 
     public boolean receivedTcp() {

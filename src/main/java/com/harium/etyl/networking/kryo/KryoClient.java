@@ -1,11 +1,10 @@
 package com.harium.etyl.networking.kryo;
 
-import com.harium.etyl.networking.model.Peer;
-import com.harium.etyl.networking.model.data.ConnectionData;
-import com.harium.etyl.networking.protocol.Protocol;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.harium.etyl.networking.model.data.ConnectionData;
+import com.harium.etyl.networking.protocol.Protocol;
 
 import java.io.IOException;
 
@@ -15,7 +14,7 @@ public class KryoClient extends Client {
     protected int udpPort = KryoEndpoint.UNDEFINED_PORT;
 
     protected String host = KryoEndpoint.LOCAL_HOST;
-    protected final Peer SERVER = new Peer();
+    protected final KryoPeer SERVER = new KryoPeer();
 
     KryoEndpoint kryoEndpoint = new KryoEndpoint();
 
@@ -46,7 +45,7 @@ public class KryoClient extends Client {
             }
 
             public void disconnected(Connection c) {
-                System.out.println("Disconnected from: " + SERVER.getID());
+                System.out.println("Disconnected from: " + SERVER.getId());
 
                 for (Protocol protocol : kryoEndpoint.protocols.values()) {
                     protocol.removePeer(SERVER);
@@ -71,7 +70,7 @@ public class KryoClient extends Client {
     }
 
     protected Connection newConnection() {
-        return new Peer();
+        return new KryoPeer().getConnection();
     }
 
     /**

@@ -22,12 +22,12 @@ public class NullProtocol implements Protocol {
 
 	@Override
 	public void addPeer(Peer peer) {
-		System.out.println("Null Client Protocol - added peer "+peer.getID());
+		System.out.println("Null Client Protocol - added peer "+peer.getId());
 	}
 
 	@Override
 	public void removePeer(Peer peer) {
-		System.out.println("Null Client Protocol - removed peer "+peer.getID());
+		System.out.println("Null Client Protocol - removed peer "+peer.getId());
 	}
 
 	@Override
