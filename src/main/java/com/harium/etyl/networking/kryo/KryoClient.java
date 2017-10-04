@@ -3,13 +3,15 @@ package com.harium.etyl.networking.kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.harium.etyl.networking.model.BaseClient;
 import com.harium.etyl.networking.model.data.ConnectionData;
+import com.harium.etyl.networking.model.data.RawData;
 import com.harium.etyl.networking.protocol.Protocol;
 import com.harium.etyl.networking.protocol.ProtocolHandler;
 
 import java.io.IOException;
 
-public class KryoClient extends Client {
+public class KryoClient extends Client implements BaseClient {
 
     protected int tcpPort = ProtocolHandler.UNDEFINED_PORT;
     protected int udpPort = ProtocolHandler.UNDEFINED_PORT;
@@ -17,7 +19,7 @@ public class KryoClient extends Client {
     protected String host = ProtocolHandler.LOCAL_HOST;
     protected final KryoPeer SERVER = new KryoPeer(Integer.MIN_VALUE);
 
-    ProtocolHandler protocolHandler = new ProtocolHandler();
+    protected ProtocolHandler protocolHandler = new ProtocolHandler();
 
     public KryoClient(String host, int tcpPort) {
         this();
@@ -27,7 +29,6 @@ public class KryoClient extends Client {
 
     public KryoClient(String host, int tcpPort, int udpPort) {
         this(host, tcpPort);
-
         this.udpPort = udpPort;
     }
 
@@ -70,10 +71,6 @@ public class KryoClient extends Client {
         }
     }
 
-    /*protected Connection newConnection() {
-        return new KryoPeer().getConnection();
-    }*/
-
     /**
      * Adds the protocol with the default prefix
      *
@@ -93,4 +90,33 @@ public class KryoClient extends Client {
         this.addProtocol(protocol.getPrefix(), protocol);
     }
 
+    @Override
+    public void sendToTCP(ConnectionData connectionData) {
+        sendTCP(connectionData);
+    }
+
+    @Override
+    public void sendToTCP(RawData rawData) {
+        sendTCP(rawData);
+    }
+
+    @Override
+    public void sendToUDP(ConnectionData connectionData) {
+        sendUDP(connectionData);
+    }
+
+    @Override
+    public void sendToUDP(RawData rawData) {
+        sendUDP(rawData);
+    }
+
+    @Override
+    public void sendToWebSocket(ConnectionData connectionData) {
+        sendTCP(connectionData);
+    }
+
+    @Override
+    public void sendToWebSocket(RawData rawData) {
+        sendTCP(rawData);
+    }
 }

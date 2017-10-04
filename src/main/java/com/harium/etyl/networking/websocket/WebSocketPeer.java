@@ -10,6 +10,10 @@ public class WebSocketPeer extends Peer {
     private String uniqueId;
     private WebSocket webSocket;
 
+    public WebSocketPeer(int id) {
+        this.id = id;
+    }
+
     public WebSocketPeer(WebSocket webSocket) {
         this.webSocket = webSocket;
         this.uniqueId = webSocket.getResourceDescriptor();
