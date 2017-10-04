@@ -34,5 +34,5 @@ public class HandShakeServer extends EtylServer {
 		System.out.println("Left: "+peer.getId());
 		listener.removePeer(peer);
 	}
-	
+
 }

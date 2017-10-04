@@ -1,22 +1,27 @@
 package com.harium.etyl.networking.kryo;
 
+import com.esotericsoftware.kryonet.Connection;
 import com.harium.etyl.networking.model.Peer;
 
 public class KryoPeer extends Peer {
 
-    private String id;
-    private KryoConnection connection;
+    private int id;
+    private Connection connection;
 
-    public KryoPeer() {
-        connection = new KryoConnection();
-        id = Integer.toString(connection.getID());
+    public KryoPeer(int id) {
+        this.id = id;
     }
 
-    public KryoConnection getConnection() {
+    public KryoPeer(Connection connection) {
+        this.connection = connection;
+        id = connection.getID();
+    }
+
+    public Connection getConnection() {
         return connection;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 }

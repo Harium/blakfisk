@@ -5,18 +5,19 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.harium.etyl.networking.model.data.ConnectionData;
 import com.harium.etyl.networking.protocol.Protocol;
+import com.harium.etyl.networking.protocol.ProtocolHandler;
 
 import java.io.IOException;
 
 public class KryoClient extends Client {
 
-    protected int tcpPort = KryoEndpoint.UNDEFINED_PORT;
-    protected int udpPort = KryoEndpoint.UNDEFINED_PORT;
+    protected int tcpPort = ProtocolHandler.UNDEFINED_PORT;
+    protected int udpPort = ProtocolHandler.UNDEFINED_PORT;
 
-    protected String host = KryoEndpoint.LOCAL_HOST;
-    protected final KryoPeer SERVER = new KryoPeer();
+    protected String host = ProtocolHandler.LOCAL_HOST;
+    protected final KryoPeer SERVER = new KryoPeer(Integer.MIN_VALUE);
 
-    KryoEndpoint kryoEndpoint = new KryoEndpoint();
+    ProtocolHandler protocolHandler = new ProtocolHandler();
 
     public KryoClient(String host, int tcpPort) {
         this();
@@ -38,16 +39,16 @@ public class KryoClient extends Client {
             public void received(Connection c, Object object) {
                 if (object instanceof ConnectionData) {
                     ConnectionData message = (ConnectionData) object;
-                    kryoEndpoint.receiveMessageData(SERVER, message);
+                    protocolHandler.receiveMessageData(SERVER, message);
 
                     return;
                 }
             }
 
             public void disconnected(Connection c) {
-                System.out.println("Disconnected from: " + SERVER.getId());
+                System.out.println("Disconnected from Server");
 
-                for (Protocol protocol : kryoEndpoint.protocols.values()) {
+                for (Protocol protocol : protocolHandler.getProtocols().values()) {
                     protocol.removePeer(SERVER);
                 }
             }
@@ -58,10 +59,10 @@ public class KryoClient extends Client {
         super.start();
 
         try {
-            if (udpPort == KryoEndpoint.UNDEFINED_PORT) {
-                super.connect(KryoEndpoint.DEFAULT_TIMEOUT, host, tcpPort);
+            if (udpPort == ProtocolHandler.UNDEFINED_PORT) {
+                super.connect(ProtocolHandler.DEFAULT_TIMEOUT, host, tcpPort);
             } else {
-                super.connect(KryoEndpoint.DEFAULT_TIMEOUT, host, tcpPort, udpPort);
+                super.connect(ProtocolHandler.DEFAULT_TIMEOUT, host, tcpPort, udpPort);
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -69,9 +70,9 @@ public class KryoClient extends Client {
         }
     }
 
-    protected Connection newConnection() {
+    /*protected Connection newConnection() {
         return new KryoPeer().getConnection();
-    }
+    }*/
 
     /**
      * Adds the protocol with the default prefix
@@ -80,7 +81,7 @@ public class KryoClient extends Client {
      * @param protocol - the protocol to respond by it's own prefix
      */
     public void addProtocol(byte[] prefix, Protocol protocol) {
-        kryoEndpoint.addProtocol(prefix, protocol);
+        protocolHandler.addProtocol(prefix, protocol);
     }
 
 
