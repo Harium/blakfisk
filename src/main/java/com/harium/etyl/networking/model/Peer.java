@@ -6,6 +6,7 @@ import java.util.Map;
 public abstract class Peer {
 
     private Map<String, String> values;
+    private Object websocket;
 
     public Peer() {
         super();
@@ -20,6 +21,6 @@ public abstract class Peer {
         this.values = values;
     }
 
-    public abstract String getId();
+    public abstract int getId();
 
 }

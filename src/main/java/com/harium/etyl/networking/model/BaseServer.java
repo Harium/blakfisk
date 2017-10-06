@@ -1,11 +1,13 @@
 package com.harium.etyl.networking.model;
 
-public interface BaseServer {
+public interface BaseServer extends BaseSender {
+    void onConnect(Peer peer);
+
     void joinPeer(Peer peer);
 
     void leftPeer(Peer peer);
 
-    Peer getPeer(String id);
+    Peer getPeer(int id);
 
-    void removePeer(String id);
+    void removePeer(int id);
 }

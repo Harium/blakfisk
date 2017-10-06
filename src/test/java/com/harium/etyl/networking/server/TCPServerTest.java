@@ -1,9 +1,9 @@
 package com.harium.etyl.networking.server;
 
 import com.harium.etyl.networking.kryo.KryoClient;
-import com.harium.etyl.networking.kryo.KryoEndpoint;
 import com.harium.etyl.networking.example.server.HandShakeServer;
 import com.harium.etyl.networking.example.server.SimpleServerProtocol;
+import com.harium.etyl.networking.protocol.ProtocolHandler;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class TCPServerTest extends TestCase {
 
-    private static final String IP = KryoEndpoint.LOCAL_HOST;
+    private static final String IP = ProtocolHandler.LOCAL_HOST;
     private static final int PORT = 10222;
 
     private String LISTENER_PREFIX = "/s";
