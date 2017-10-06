@@ -12,7 +12,7 @@ public class SimpleHandshaker extends HandshakerProtocol {
     }
 
     @Override
-    public String handshakeText(Peer peer) {
+    public String buildHandshake(Peer peer) {
         return " Hello, player " + peer.getId() + "!";
     }
 
