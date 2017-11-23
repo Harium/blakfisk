@@ -83,7 +83,6 @@ public class KryoClient extends Client implements BaseClient {
         protocolHandler.addProtocol(prefix, protocol);
     }
 
-
     public void addProtocol(String prefix, Protocol protocol) {
         this.addProtocol(prefix.getBytes(), protocol);
     }

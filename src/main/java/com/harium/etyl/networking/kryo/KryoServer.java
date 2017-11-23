@@ -59,16 +59,18 @@ public abstract class KryoServer extends Server implements BaseServer {
 
     @Override
     public void onConnect(Peer peer) {
-        serverHandler.handshaker.addPeer(peer);
+        serverHandler.addPeer(peer);
         joinPeer(peer);
     }
 
     @Override
     public void removePeer(int id) {
-        peers.remove(id);
-        /*for(Protocol protocol : protocols.values()) {
-            protocol.removePeer(peer);
-		}*/
+        Peer peer = getPeer(id);
+        if (peer != null) {
+            leftPeer(peer);
+            serverHandler.removePeer(peer);
+            peers.remove(id);
+        }
     }
 
     @Override
@@ -97,6 +99,10 @@ public abstract class KryoServer extends Server implements BaseServer {
 
     public void addProtocol(String prefix, Protocol protocol) {
         this.addProtocol(prefix.getBytes(), protocol);
+    }
+
+    public void addProtocol(Protocol protocol) {
+        this.addProtocol(protocol.getPrefix(), protocol);
     }
 
     public Map<ByteArrayKey, Protocol> getProtocols() {

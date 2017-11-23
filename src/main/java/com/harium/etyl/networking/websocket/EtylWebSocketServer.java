@@ -46,7 +46,6 @@ public abstract class EtylWebSocketServer extends WebSocketServer implements Bas
     @Override
     public void onClose(WebSocket webSocket, int i, String message, boolean b) {
         Peer peer = peers.get(webSocket.getResourceDescriptor());
-        leftPeer(peer);
         removePeer(peer.getId());
     }
 
@@ -76,13 +75,11 @@ public abstract class EtylWebSocketServer extends WebSocketServer implements Bas
     public void removePeer(int id) {
         WebSocketPeer peer = peerIds.get(id);
         if (peer != null) {
+            leftPeer(peer);
+            serverHandler.removePeer(peer);
             peers.remove(peer.getUniqueId());
             peerIds.remove(id);
         }
-
-        /*for(Protocol protocol : protocols.values()) {
-            protocol.removePeer(peer);
-		}*/
     }
 
     @Override
@@ -119,7 +116,7 @@ public abstract class EtylWebSocketServer extends WebSocketServer implements Bas
 
     @Override
     public void onConnect(Peer peer) {
-        serverHandler.handshaker.addPeer(peer);
+        serverHandler.addPeer(peer);
         joinPeer(peer);
     }
 

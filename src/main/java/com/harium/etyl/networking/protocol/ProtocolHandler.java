@@ -8,6 +8,7 @@ import com.harium.etyl.networking.model.data.MessageProtocol;
 import com.harium.etyl.networking.model.data.RawData;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class ProtocolHandler {
@@ -82,7 +83,6 @@ public class ProtocolHandler {
         return packMessage(prefix.getBytes(), message.getBytes());
     }
 
-
     public static RawData packRawMessage(byte[] message) {
         RawData data = new RawData();
         data.data = message;
@@ -95,5 +95,17 @@ public class ProtocolHandler {
 
     public Map<ByteArrayKey, Protocol> getProtocols() {
         return protocols;
+    }
+
+    public void addPeer(Peer peer) {
+        handshaker.addPeer(peer);
+    }
+
+    public void removePeer(Peer peer) {
+        Iterator<Protocol> iterator = protocols.values().iterator();
+        while (iterator.hasNext()) {
+            Protocol protocol = iterator.next();
+            protocol.removePeer(peer);
+        }
     }
 }
