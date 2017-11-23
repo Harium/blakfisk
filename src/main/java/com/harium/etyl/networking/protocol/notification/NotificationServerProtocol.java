@@ -10,7 +10,7 @@ import java.util.*;
 public class NotificationServerProtocol extends ServerProtocol {
 
     private int count = 0;
-    public static final String PREFIX_ACK = "a";
+    public static final byte[] PREFIX_ACK = "a".getBytes();
 
     // Package scope for test purpose
     Map<Integer, Notification> notifications = new HashMap<>(16);
@@ -29,10 +29,9 @@ public class NotificationServerProtocol extends ServerProtocol {
     public void receiveUDP(Peer peer, byte[] message) {
         byte[] prefix = ByteMessageUtils.getPrefix(message);
 
-        if (PREFIX_ACK.equals(prefix)) {
+        if (ByteMessageUtils.equals(PREFIX_ACK, prefix)) {
             byte[] text = ByteMessageUtils.wipePrefix(prefix, message);
-            String hashText = new String(text);
-            int hash = Integer.parseInt(hashText);
+            int hash = ByteMessageUtils.bytesToInt(text);
             notifications.remove(hash);
         }
     }
@@ -78,9 +77,9 @@ public class NotificationServerProtocol extends ServerProtocol {
             return;
         }
 
-        Iterator<Map.Entry<Integer, Notification>> it = notifications.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Integer, Notification> pair = it.next();
+        Iterator<Map.Entry<Integer, Notification>> iterator = notifications.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Notification> pair = iterator.next();
 
             int id = pair.getKey();
             Notification notification = pair.getValue();

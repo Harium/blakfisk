@@ -2,6 +2,7 @@ package com.harium.etyl.networking.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public class ByteMessageUtils {
 
@@ -97,5 +98,13 @@ public class ByteMessageUtils {
 
     public static int bytesToInt(byte[] array) {
         return ByteBuffer.wrap(array).order(BYTE_ORDER).getInt();
+    }
+
+    public static boolean equals(String a, String b) {
+        return a.equals(b);
+    }
+
+    public static boolean equals(byte[] a, byte[] b) {
+        return Arrays.equals(a, b);
     }
 }

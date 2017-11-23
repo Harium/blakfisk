@@ -31,7 +31,7 @@ public class NotificationClientProtocol extends ClientProtocol {
     @Override
     public void receiveUDP(Peer peer, byte[] message) {
         byte[] hashId = notifyListener(peer, message);
-        byte[] response = ByteMessageUtils.concatenateMessage(NotificationServerProtocol.PREFIX_ACK.getBytes(), hashId);
+        byte[] response = ByteMessageUtils.concatenateMessage(NotificationServerProtocol.PREFIX_ACK, hashId);
         sendUDP(response);
     }
 
