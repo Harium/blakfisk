@@ -22,22 +22,23 @@ public abstract class KryoServer extends Server implements BaseServer {
     protected KryoServerHandler serverHandler;
     protected Map<Integer, Peer> peers = new HashMap<>();
 
-    public KryoServer() {
-        super();
-
-        KryoEndpoint.register(this);
-        serverHandler = new KryoServerHandler(this);
-        addListener(serverHandler.getEndpoint());
-    }
-
     public KryoServer(int tcpPort) {
-        this();
+        super();
         this.tcpPort = tcpPort;
+        init();
     }
 
     public KryoServer(int tcpPort, int udpPort) {
-        this(tcpPort);
+        super();
+        this.tcpPort = tcpPort;
         this.udpPort = udpPort;
+        init();
+    }
+
+    private void init() {
+        KryoEndpoint.register(this);
+        serverHandler = new KryoServerHandler(this);
+        addListener(serverHandler.getEndpoint());
     }
 
     @Override
@@ -73,6 +74,11 @@ public abstract class KryoServer extends Server implements BaseServer {
     @Override
     public Peer getPeer(int id) {
         return peers.get(id);
+    }
+
+    @Override
+    public boolean hasPeer(int id) {
+        return peers.containsKey(id);
     }
 
     public void setHandshaker(Protocol handshaker) {

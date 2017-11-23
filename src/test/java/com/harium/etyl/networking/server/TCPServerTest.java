@@ -1,5 +1,6 @@
 package com.harium.etyl.networking.server;
 
+import com.harium.etyl.networking.EtylClient;
 import com.harium.etyl.networking.kryo.KryoClient;
 import com.harium.etyl.networking.example.server.HandShakeServer;
 import com.harium.etyl.networking.example.server.SimpleServerProtocol;
@@ -30,7 +31,7 @@ public class TCPServerTest extends TestCase {
 
     @Test
     public void testUserConnected() throws Exception {
-        KryoClient client = new KryoClient(IP, PORT);
+        EtylClient client = new EtylClient(IP, PORT);
         client.connect();
         Thread.sleep(1000);
 

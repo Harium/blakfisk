@@ -2,6 +2,7 @@ package com.harium.etyl.networking.server;
 
 import com.harium.etyl.networking.example.server.SimpleServerProtocol;
 import com.harium.etyl.networking.protocol.Protocol;
+import com.harium.etyl.networking.test.DummyServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

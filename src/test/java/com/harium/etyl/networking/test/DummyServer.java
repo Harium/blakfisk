@@ -1,4 +1,4 @@
-package com.harium.etyl.networking.server;
+package com.harium.etyl.networking.test;
 
 import com.harium.etyl.networking.EtylServer;
 import com.harium.etyl.networking.model.Peer;
