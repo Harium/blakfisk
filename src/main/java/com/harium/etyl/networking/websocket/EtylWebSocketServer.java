@@ -4,7 +4,7 @@ import com.harium.etyl.networking.model.BaseServer;
 import com.harium.etyl.networking.model.ByteArrayKey;
 import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.model.data.ConnectionData;
-import com.harium.etyl.networking.model.data.MessageProtocol;
+import com.harium.etyl.networking.model.data.ConnectionType;
 import com.harium.etyl.networking.model.data.RawData;
 import com.harium.etyl.networking.protocol.Protocol;
 import com.harium.etyl.networking.protocol.ProtocolHandler;
@@ -57,7 +57,7 @@ public abstract class EtylWebSocketServer extends WebSocketServer implements Bas
         String data = message.substring(prefix.length());
 
         ConnectionData connectionData = serverHandler.packMessage(prefix, data);
-        connectionData.connectionType = MessageProtocol.WEBSOCKET;
+        connectionData.connectionType = ConnectionType.WEBSOCKET;
         serverHandler.receiveMessageData(peer, connectionData);
     }
 

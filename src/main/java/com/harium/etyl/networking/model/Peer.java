@@ -6,7 +6,6 @@ import java.util.Map;
 public abstract class Peer {
 
     private Map<String, String> values;
-    private Object websocket;
 
     public Peer() {
         super();
@@ -23,4 +22,18 @@ public abstract class Peer {
 
     public abstract int getId();
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Peer peer = (Peer) o;
+
+        return getId() == peer.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return getId();
+    }
 }

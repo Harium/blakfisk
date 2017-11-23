@@ -17,7 +17,7 @@ public class NotificationServerProtocolTest {
 
     @Test
     public void testSendNotification() {
-        protocol.sendNotification(new DummyPeer(123), "hi");
+        protocol.notify(new DummyPeer(123), "hi");
         Assert.assertEquals(1, protocol.notifications.size());
     }
 

@@ -2,7 +2,7 @@ package com.harium.etyl.networking.websocket;
 
 import com.harium.etyl.networking.model.BaseClient;
 import com.harium.etyl.networking.model.data.ConnectionData;
-import com.harium.etyl.networking.model.data.MessageProtocol;
+import com.harium.etyl.networking.model.data.ConnectionType;
 import com.harium.etyl.networking.model.data.RawData;
 import com.harium.etyl.networking.protocol.ProtocolHandler;
 import com.harium.etyl.networking.util.ByteMessageUtils;
@@ -32,7 +32,7 @@ public class EtylWebSocketClient extends WebSocketClient implements BaseClient {
     @Override
     public void onMessage(String message) {
         ConnectionData data = new ConnectionData();
-        data.connectionType = MessageProtocol.WEBSOCKET;
+        data.connectionType = ConnectionType.WEBSOCKET;
         data.data = message.getBytes();
         protocolHandler.receiveMessageData(SERVER, data);
     }

@@ -1,7 +1,7 @@
 package com.harium.etyl.networking.protocol.common;
 
 import com.harium.etyl.networking.model.Peer;
-import com.harium.etyl.networking.model.data.MessageProtocol;
+import com.harium.etyl.networking.model.data.ConnectionType;
 import com.harium.etyl.networking.protocol.Protocol;
 import com.harium.etyl.networking.util.ByteMessageUtils;
 
@@ -12,6 +12,11 @@ public abstract class ProtocolImpl implements Protocol {
 
     protected byte[] prefix = ByteMessageUtils.EMPTY_BYTES;
     protected Map<Integer, Peer> peers = new LinkedHashMap<>();
+
+    public ProtocolImpl(byte[] prefix) {
+        super();
+        this.prefix = prefix;
+    }
 
     public ProtocolImpl(String prefix) {
         super();
@@ -24,11 +29,11 @@ public abstract class ProtocolImpl implements Protocol {
 
     @Override
     public void receive(byte messageProtocol, Peer peer, byte[] message) {
-        if (MessageProtocol.TCP == messageProtocol) {
+        if (ConnectionType.TCP == messageProtocol) {
             receiveTCP(peer, message);
-        } else if (MessageProtocol.UDP == messageProtocol) {
+        } else if (ConnectionType.UDP == messageProtocol) {
             receiveUDP(peer, message);
-        } else if (MessageProtocol.WEBSOCKET == messageProtocol) {
+        } else if (ConnectionType.WEBSOCKET == messageProtocol) {
             receiveWebSocket(peer, message);
         } else {
             System.err.println("Undefined Connection Protocol");

@@ -1,9 +1,6 @@
 package com.harium.etyl.networking.protocol.common;
 
 import com.harium.etyl.networking.model.BaseClient;
-import com.harium.etyl.networking.model.data.ConnectionData;
-import com.harium.etyl.networking.model.data.MessageProtocol;
-import com.harium.etyl.networking.protocol.ProtocolHandler;
 import com.harium.etyl.networking.model.Peer;
 
 public abstract class StringClientProtocol extends ClientProtocol {

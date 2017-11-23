@@ -4,7 +4,7 @@ import com.harium.etyl.networking.dummy.LogProtocol;
 import com.harium.etyl.networking.model.ByteArrayKey;
 import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.model.data.ConnectionData;
-import com.harium.etyl.networking.model.data.MessageProtocol;
+import com.harium.etyl.networking.model.data.ConnectionType;
 import com.harium.etyl.networking.model.data.RawData;
 
 import java.util.HashMap;
@@ -35,11 +35,11 @@ public class ProtocolHandler {
 
         byte connectionType = message.connectionType;
 
-        if (MessageProtocol.TCP == connectionType) {
+        if (ConnectionType.TCP == connectionType) {
             protocol.receiveTCP(peer, message.data);
-        } else if (MessageProtocol.UDP == connectionType) {
+        } else if (ConnectionType.UDP == connectionType) {
             protocol.receiveUDP(peer, message.data);
-        } else if (MessageProtocol.WEBSOCKET == connectionType) {
+        } else if (ConnectionType.WEBSOCKET == connectionType) {
             protocol.receiveWebSocket(peer, message.data);
         } else {
             byte undefinedProtocol = connectionType;
