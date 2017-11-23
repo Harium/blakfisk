@@ -1,5 +1,6 @@
 package com.harium.etyl.networking.protocol;
 
+import com.harium.etyl.networking.dummy.LogProtocol;
 import com.harium.etyl.networking.model.ByteArrayKey;
 import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.model.data.ConnectionData;
@@ -17,9 +18,8 @@ public class ProtocolHandler {
 
     protected Map<ByteArrayKey, Protocol> protocols = new HashMap<ByteArrayKey, Protocol>();
 
-    //TODO It is really needed?
-    private static final Protocol NULL_HANDSHAKER = new NullProtocol();
-    public Protocol handshaker = NULL_HANDSHAKER;
+    private static final Protocol DUMMY_HANDSHAKER = new LogProtocol();
+    public Protocol handshaker = DUMMY_HANDSHAKER;
 
     public ProtocolHandler() {
         super();

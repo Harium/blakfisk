@@ -41,6 +41,9 @@ public class KryoEndpoint extends Listener {
 
     @Override
     public void disconnected(Connection c) {
+        if (!server.hasPeer(c.getID())) {
+            return;
+        }
         Peer peer = server.getPeer(c.getID());
         server.removePeer(c.getID());
         server.leftPeer(peer);

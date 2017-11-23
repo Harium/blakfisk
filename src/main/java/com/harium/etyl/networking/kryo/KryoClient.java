@@ -22,19 +22,21 @@ public class KryoClient extends Client implements BaseClient {
     protected ProtocolHandler protocolHandler = new ProtocolHandler();
 
     public KryoClient(String host, int tcpPort) {
-        this();
+        super();
         this.host = host;
         this.tcpPort = tcpPort;
+        init();
     }
 
     public KryoClient(String host, int tcpPort, int udpPort) {
-        this(host, tcpPort);
+        super();
+        this.host = host;
+        this.tcpPort = tcpPort;
         this.udpPort = udpPort;
+        init();
     }
 
-    public KryoClient() {
-        super();
-
+    private void init() {
         KryoEndpoint.register(this);
         addListener(new Listener() {
             public void received(Connection c, Object object) {

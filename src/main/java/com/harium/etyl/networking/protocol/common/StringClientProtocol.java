@@ -13,21 +13,15 @@ public abstract class StringClientProtocol extends ClientProtocol {
     }
 
     protected void sendTCP(String message) {
-        ConnectionData data = ProtocolHandler.packMessage(prefix, message.getBytes());
-        data.connectionType = MessageProtocol.TCP;
-        client.sendToTCP(data);
+        sendTCP(message.getBytes());
     }
 
     protected void sendUDP(String message) {
-        ConnectionData data = ProtocolHandler.packMessage(prefix, message.getBytes());
-        data.connectionType = MessageProtocol.UDP;
-        client.sendToUDP(data);
+        sendUDP(message.getBytes());
     }
 
     protected void sendWebSocket(String message) {
-        ConnectionData data = ProtocolHandler.packMessage(prefix, message.getBytes());
-        data.connectionType = MessageProtocol.WEBSOCKET;
-        client.sendToWebSocket(data);
+        sendWebSocket(message.getBytes());
     }
 
     @Override

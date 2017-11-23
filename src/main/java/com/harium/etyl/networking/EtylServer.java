@@ -4,10 +4,6 @@ import com.harium.etyl.networking.kryo.KryoServer;
 
 public abstract class EtylServer extends KryoServer {
 
-	public EtylServer() {
-		super();
-	}
-	
 	public EtylServer(int port) {
 		super(port);
 	}

@@ -1,9 +1,10 @@
-package com.harium.etyl.networking.protocol;
+package com.harium.etyl.networking.dummy;
 
 import com.harium.etyl.networking.model.Peer;
+import com.harium.etyl.networking.protocol.Protocol;
 import com.harium.etyl.networking.util.ByteMessageUtils;
 
-public class NullProtocol implements Protocol {
+public class LogProtocol implements Protocol {
 
     @Override
     public void receiveTCP(Peer peer, byte[] message) {

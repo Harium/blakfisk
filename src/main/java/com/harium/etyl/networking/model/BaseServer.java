@@ -7,6 +7,8 @@ public interface BaseServer extends BaseSender {
 
     void leftPeer(Peer peer);
 
+    boolean hasPeer(int id);
+
     Peer getPeer(int id);
 
     void removePeer(int id);

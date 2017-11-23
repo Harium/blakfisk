@@ -21,6 +21,10 @@ public abstract class ServerProtocol extends ProtocolImpl {
         server.sendToTCP(peerId, ProtocolHandler.packMessage(prefix, message));
     }
 
+    public void sendTCP(int peerId, byte[] message) {
+        server.sendToTCP(peerId, ProtocolHandler.packMessage(prefix, message));
+    }
+
     public void sendTCP(Peer peer, String message) {
         this.sendTCP(peer.getId(), message);
     }
@@ -45,6 +49,10 @@ public abstract class ServerProtocol extends ProtocolImpl {
 
     public void sendUDP(int peerId, String message) {
         server.sendToUDP(peerId, ProtocolHandler.packMessage(prefix, message));
+    }
+
+    public void sendUDP(Peer peer, byte[] message) {
+        server.sendToUDP(peer.getId(), ProtocolHandler.packMessage(prefix, message));
     }
 
     public void sendUDP(Peer peer, String message) {
