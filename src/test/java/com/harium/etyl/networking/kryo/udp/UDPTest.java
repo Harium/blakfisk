@@ -24,9 +24,18 @@ public class UDPTest {
     @Test
     public void testUDPConnection() {
         UDPClient client = new UDPClient();
-        client.start();
+        client.connect();
+        waitServer();
 
         Assert.assertTrue(server.getCount() > 0);
+    }
+
+    private void waitServer() {
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public class UDPClient extends EtylClient {
