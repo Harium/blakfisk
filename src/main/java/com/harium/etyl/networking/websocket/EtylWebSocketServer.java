@@ -90,6 +90,11 @@ public abstract class EtylWebSocketServer extends WebSocketServer implements Bas
         return peers.get(id);
     }
 
+    @Override
+    public boolean hasPeer(int id) {
+        return peers.containsKey(id);
+    }
+
     /**
      * Adds the protocol with the default prefix
      *

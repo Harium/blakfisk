@@ -1,39 +1,47 @@
-package com.prodec.dronepark.simulator.networking.server.protocol;
+package com.harium.etyl.networking.protocol.notification;
 
 import com.harium.etyl.networking.model.BaseServer;
 import com.harium.etyl.networking.model.Peer;
-import com.harium.etyl.networking.protocol.common.StringServerProtocol;
+import com.harium.etyl.networking.protocol.common.ServerProtocol;
 import com.harium.etyl.networking.util.ByteMessageUtils;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class NotificationServerProtocol extends StringServerProtocol {
+public class NotificationServerProtocol extends ServerProtocol {
 
     private int count = 0;
     public static final String PREFIX_ACK = "a";
-    private Map<Integer, Notification> notifications = new HashMap<>(16);
+
+    // Package scope for test purpose
+    Map<Integer, Notification> notifications = new HashMap<>(16);
 
     public NotificationServerProtocol(String prefix, BaseServer server) {
         super(prefix, server);
     }
 
     @Override
-    protected void receiveTCP(Peer peer, String message) {
+    public void receiveTCP(Peer peer, byte[] message) {
     }
 
     @Override
-    protected void receiveUDP(Peer peer, String message) {
-        String prefix = ByteMessageUtils.getPrefix(message);
+    public void receiveUDP(Peer peer, byte[] message) {
+        byte[] prefix = ByteMessageUtils.getPrefix(message);
+
         if (PREFIX_ACK.equals(prefix)) {
-            String hashText = message.substring(PREFIX_ACK.length() + 1);
+            byte[] text = ByteMessageUtils.wipePrefix(prefix, message);
+            String hashText = new String(text);
             int hash = Integer.parseInt(hashText);
             notifications.remove(hash);
         }
     }
 
     public void sendNotification(Peer peer, String message) {
+        sendNotification(peer, message.getBytes());
+    }
+
+    public void sendNotification(Peer peer, byte[] message) {
         Notification notification = new Notification(peer, message);
         notifications.put(generateId(), notification);
     }
@@ -44,7 +52,10 @@ public class NotificationServerProtocol extends StringServerProtocol {
             Map.Entry<Integer, Notification> pair = it.next();
             int id = pair.getKey();
             Notification notification = pair.getValue();
-            sendUDP(notification.peer, id + " " + notification.message);
+
+            byte[] hashId = ByteMessageUtils.intToBytes(id);
+            byte[] text = ByteMessageUtils.concatenateMessage(hashId, notification.message);
+            sendUDP(notification.peer, text);
         }
     }
 

@@ -1,11 +1,15 @@
 package com.harium.etyl.networking.util;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 public class ByteMessageUtils {
 
     public static final String EMPTY_STRING = "";
     public static final byte[] EMPTY_BYTES = EMPTY_STRING.getBytes();
     public static final String WHITE_SPACE_STRING = " ";
     public static final byte[] SEPARATOR_BYTES = WHITE_SPACE_STRING.getBytes();
+    private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
 
     public static byte[] getPrefix(byte[] message) {
 
@@ -87,4 +91,11 @@ public class ByteMessageUtils {
         return new String(wipePrefix(prefix.getBytes(), message.getBytes()));
     }
 
+    public static byte[] intToBytes(int value) {
+        return ByteBuffer.allocate(4).order(BYTE_ORDER).putInt(value).array();
+    }
+
+    public static int bytesToInt(byte[] array) {
+        return ByteBuffer.wrap(array).order(BYTE_ORDER).getInt();
+    }
 }

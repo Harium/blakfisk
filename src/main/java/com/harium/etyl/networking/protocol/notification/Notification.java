@@ -1,13 +1,12 @@
-package com.prodec.dronepark.simulator.networking.server.protocol;
+package com.harium.etyl.networking.protocol.notification;
 
 import com.harium.etyl.networking.model.Peer;
 
 public class Notification {
     Peer peer;
-    String message;
-    int id;
+    byte[] message;
 
-    public Notification(Peer peer, String message) {
+    public Notification(Peer peer, byte[] message) {
         this.peer = peer;
         this.message = message;
     }
