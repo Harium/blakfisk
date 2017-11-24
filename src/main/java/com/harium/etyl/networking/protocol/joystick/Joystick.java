@@ -6,10 +6,18 @@ package com.harium.etyl.networking.protocol.joystick;
 public class Joystick {
 
     public static final int SIZE = 32; // 32 digital keys (max)
+
+    private int size;
     private boolean[] keys;
 
     public Joystick() {
-        keys = new boolean[SIZE];
+        size = SIZE;
+        keys = new boolean[size];
+    }
+
+    public Joystick(int size) {
+        this.size = size;
+        keys = new boolean[size];
     }
 
     public boolean press(int key) {
@@ -32,6 +40,10 @@ public class Joystick {
 
     public boolean[] getKeys() {
         return keys;
+    }
+
+    public int getSize() {
+        return size;
     }
 
 }

@@ -9,11 +9,13 @@ import java.util.Map;
 
 public class JoystickServerProtocol extends StringServerProtocol {
 
+    protected int size = Joystick.SIZE;
     Map<Integer, Joystick> joysticks;
     JoystickListener listener;
 
     public JoystickServerProtocol(String prefix, BaseServer server, JoystickListener listener) {
         super(prefix, server);
+
         this.listener = listener;
         joysticks = new HashMap<>();
     }
@@ -21,7 +23,7 @@ public class JoystickServerProtocol extends StringServerProtocol {
     @Override
     public void addPeer(Peer peer) {
         super.addPeer(peer);
-        joysticks.put(peer.getId(), new Joystick());
+        joysticks.put(peer.getId(), new Joystick(size));
     }
 
     @Override
@@ -45,7 +47,7 @@ public class JoystickServerProtocol extends StringServerProtocol {
 
         // It can be turned into byte array
         int value = Integer.parseInt(message);
-        boolean[] array = JoystickProtocolUtils.intToBoolean(value, Joystick.SIZE);
+        boolean[] array = JoystickProtocolUtils.intToBoolean(value, joystick.getSize());
 
         int index = 0;
         for (boolean key : array) {
