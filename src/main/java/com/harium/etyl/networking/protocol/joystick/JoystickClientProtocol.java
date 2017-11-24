@@ -9,10 +9,10 @@ import java.util.Map;
 
 public class JoystickClientProtocol extends StringClientProtocol implements Runnable {
 
+    int mappedKeys = 0;
+
     Joystick joystick;
     Map<Integer, Integer> keyMap;
-
-    int mappedKeys = 0;
 
     public JoystickClientProtocol(String prefix, BaseClient client) {
         super(prefix, client);
@@ -104,7 +104,7 @@ public class JoystickClientProtocol extends StringClientProtocol implements Runn
      * @param key the key to check
      * @return key is mapped
      */
-    public boolean isMappedKey(int key) {
+    public boolean hasKey(int key) {
         return keyMap.containsKey(key);
     }
 
@@ -112,4 +112,5 @@ public class JoystickClientProtocol extends StringClientProtocol implements Runn
     public void run() {
         sendCommands();
     }
+
 }
