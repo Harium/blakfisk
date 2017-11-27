@@ -1,5 +1,6 @@
 package com.harium.etyl.networking.protocol.reliable;
 
+import com.harium.etyl.networking.model.Packet;
 import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.protocol.Protocol;
 import com.harium.etyl.networking.util.ByteMessageUtils;
@@ -118,14 +119,14 @@ public class ReliableHandler {
             int id = pair.getKey();
             Packet packet = pair.getValue();
 
-            if (isLeftPeer(packet.peer.getId())) {
+            if (isLeftPeer(packet.getPeer().getId())) {
                 leftBucket.add(id);
                 continue;
             }
 
             byte[] hashId = ByteMessageUtils.intToBytes(id);
-            byte[] text = ByteMessageUtils.concatenateMessage(hashId, packet.message);
-            listener.sendUDP(packet.peer, text);
+            byte[] text = ByteMessageUtils.concatenateMessage(hashId, packet.getMessage());
+            listener.sendUDP(packet.getPeer(), text);
         }
 
         handleLeftBucket();
