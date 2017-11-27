@@ -79,7 +79,7 @@ public class ByteMessageUtils {
     }
 
     public static byte[] concatenateMessages(byte[]... chunks) {
-        int size = chunks.length * SEPARATOR_BYTES.length;
+        int size = chunks.length * SEPARATOR_BYTES.length - 1;
 
         for (byte[] bytes : chunks) {
             size += bytes.length;
@@ -91,7 +91,7 @@ public class ByteMessageUtils {
         for (byte[] bytes : chunks) {
             byteBuffer.put(bytes);
 
-            if (count < chunks.length) {
+            if (count < chunks.length - 1) {
                 byteBuffer.put(SEPARATOR_BYTES);
             }
             count++;
@@ -105,7 +105,7 @@ public class ByteMessageUtils {
     }
 
     public static byte[] wipePrefix(byte[] message, int length) {
-        return Arrays.copyOfRange(message, length+SEPARATOR_BYTES.length, message.length);
+        return Arrays.copyOfRange(message, length + SEPARATOR_BYTES.length, message.length);
     }
 
     public static byte[] wipePrefix(byte[] prefix, byte[] message) {

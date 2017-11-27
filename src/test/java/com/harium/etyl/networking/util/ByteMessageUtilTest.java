@@ -5,6 +5,8 @@ import org.junit.Test;
 
 public class ByteMessageUtilTest {
 
+    public static final byte SEP = ByteMessageUtils.SEPARATOR_BYTES[0];
+
     @Test
     public void testConcatenate() {
         String message = "my friend";
@@ -39,7 +41,7 @@ public class ByteMessageUtilTest {
     }
 
     @Test
-    public void testConcanateMultipleMessages() {
+    public void testConcanateMultipleArrays() {
         byte[] a = "a".getBytes();
         byte[] b = "b".getBytes();
         byte[] c = "c".getBytes();
@@ -47,6 +49,17 @@ public class ByteMessageUtilTest {
         byte[] result = ByteMessageUtils.concatenate(a, b, c);
 
         Assert.assertArrayEquals(new byte[]{a[0], b[0], c[0]}, result);
+    }
+
+    @Test
+    public void testConcanateMultipleMessages() {
+        byte[] a = "a".getBytes();
+        byte[] b = "b".getBytes();
+        byte[] c = "c".getBytes();
+
+        byte[] result = ByteMessageUtils.concatenateMessages(a, b, c);
+
+        Assert.assertArrayEquals(new byte[]{a[0], SEP, b[0], SEP, c[0]}, result);
     }
 
     @Test
@@ -60,7 +73,7 @@ public class ByteMessageUtilTest {
 
     @Test
     public void testWipePrefixFromLength() {
-        byte[] original = new byte[]{1, 2, ByteMessageUtils.SEPARATOR_BYTES[0], 3};
+        byte[] original = new byte[]{1, 2, SEP, 3};
         byte[] result = ByteMessageUtils.wipePrefix(original, 2);
 
         Assert.assertArrayEquals(new byte[]{3}, result);
