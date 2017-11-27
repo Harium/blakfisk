@@ -9,7 +9,9 @@ import java.util.Map;
 
 public class JoystickClientProtocol extends StringClientProtocol implements Runnable {
 
+    private static final int UNDEFINED_VALUE = -1;
     int mappedKeys = 0;
+    int lastValue = UNDEFINED_VALUE;
 
     Joystick joystick;
     Map<Integer, Integer> keyMap;
@@ -41,8 +43,11 @@ public class JoystickClientProtocol extends StringClientProtocol implements Runn
      */
     public void sendCommands() {
         int value = JoystickProtocolUtils.booleanToInt(joystick.getKeys());
-        // It can be turned into byte array
-        sendUDP(Integer.toString(value));
+        if (value != lastValue) {
+            // It can be turned into byte array
+            sendUDP(Integer.toString(value));
+        }
+        lastValue = value;
     }
 
     /**
