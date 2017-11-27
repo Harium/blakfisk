@@ -1,5 +1,6 @@
 package com.harium.etyl.networking.protocol.common;
 
+import com.harium.etyl.networking.EtylClient;
 import com.harium.etyl.networking.model.BaseClient;
 import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.model.data.ConnectionData;
@@ -23,7 +24,7 @@ public abstract class ClientProtocol extends ProtocolImpl {
     }
 
     protected void sendTCP(byte[] message) {
-        sendTCP(null, message);
+        sendTCP(EtylClient.SERVER, message);
     }
 
     @Override
@@ -34,7 +35,7 @@ public abstract class ClientProtocol extends ProtocolImpl {
     }
 
     protected void sendUDP(byte[] message) {
-        sendUDP(null, message);
+        sendUDP(EtylClient.SERVER, message);
     }
 
     @Override
@@ -45,7 +46,7 @@ public abstract class ClientProtocol extends ProtocolImpl {
     }
 
     public void sendWebSocket(byte[] message) {
-        sendWebSocket(null, message);
+        sendWebSocket(EtylClient.SERVER, message);
     }
 
 }

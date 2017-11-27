@@ -71,4 +71,12 @@ public class ReliableHandlerTest {
         Assert.assertEquals(0, handler.earlyPackets.size());
         Assert.assertEquals(4, handler.lastValidPacket);
     }
+
+    @Test
+    public void testDispatch() {
+        DummyPeer server = new DummyPeer();
+        handler.notify(server, "hello".getBytes());
+        handler.dispatch();
+        verify(listener, times(1)).sendUDP(eq(server), AdditionalMatchers.aryEq(new byte[]{1, 0, 0, 0, 32, 77, 32, 104, 101, 108, 108, 111}));
+    }
 }

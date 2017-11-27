@@ -55,6 +55,7 @@ public class ReliableServerProtocol extends ServerProtocol {
     public void tick() {
         super.tick();
         handler.dispatch();
+        System.out.println("RSProtocol Run->Dispatch");
     }
 
     @Override

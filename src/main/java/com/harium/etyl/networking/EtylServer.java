@@ -1,8 +1,9 @@
 package com.harium.etyl.networking;
 
 import com.harium.etyl.networking.kryo.KryoServer;
+import com.harium.etyl.networking.model.Peer;
 
-public abstract class EtylServer extends KryoServer {
+public class EtylServer extends KryoServer {
 
 	public EtylServer(int port) {
 		super(port);
@@ -12,4 +13,13 @@ public abstract class EtylServer extends KryoServer {
 		super(port, udpPort);
 	}
 
+	@Override
+	public void joinPeer(Peer peer) {
+
+	}
+
+	@Override
+	public void leftPeer(Peer peer) {
+
+	}
 }

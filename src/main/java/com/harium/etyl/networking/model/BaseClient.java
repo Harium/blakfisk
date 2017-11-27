@@ -2,6 +2,7 @@ package com.harium.etyl.networking.model;
 
 import com.harium.etyl.networking.model.data.ConnectionData;
 import com.harium.etyl.networking.model.data.RawData;
+import com.harium.etyl.networking.protocol.Protocol;
 
 public interface BaseClient {
 

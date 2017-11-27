@@ -47,7 +47,7 @@ public class ReliableHandler {
             byte[] text = ByteMessageUtils.subByte(message, 2);
             byte[] hashId = notifyListener(peer, text);
             byte[] response = ByteMessageUtils.concatenateMessage(PREFIX_ACK, hashId);
-            // Send ack message
+            // Send ack message without queue
             listener.sendUDP(peer, response);
         }
     }

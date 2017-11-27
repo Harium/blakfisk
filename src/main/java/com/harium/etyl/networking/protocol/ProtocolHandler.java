@@ -47,12 +47,16 @@ public class ProtocolHandler {
         }
     }
 
-    protected Protocol getProtocol(ConnectionData message) {
-        return protocols.get(new ByteArrayKey(message.prefix));
+    public Protocol getProtocol(ConnectionData message) {
+        return getProtocol(message.prefix);
+    }
+
+    public Protocol getProtocol(byte[] prefix) {
+        return protocols.get(new ByteArrayKey(prefix));
     }
 
     public Protocol getProtocol(String prefix) {
-        return protocols.get(new ByteArrayKey(prefix.getBytes()));
+        return getProtocol(prefix.getBytes());
     }
 
     /**
@@ -108,4 +112,5 @@ public class ProtocolHandler {
             protocol.removePeer(peer);
         }
     }
+
 }

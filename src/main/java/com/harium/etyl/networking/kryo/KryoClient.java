@@ -17,7 +17,7 @@ public class KryoClient extends Client implements BaseClient {
     protected int udpPort = ProtocolHandler.UNDEFINED_PORT;
 
     protected String host = ProtocolHandler.LOCAL_HOST;
-    protected final KryoPeer SERVER = new KryoPeer(Integer.MIN_VALUE);
+    public static final KryoPeer SERVER = new KryoPeer(Integer.MIN_VALUE);
 
     protected ProtocolHandler protocolHandler = new ProtocolHandler();
 
@@ -89,6 +89,14 @@ public class KryoClient extends Client implements BaseClient {
 
     public void addProtocol(Protocol protocol) {
         this.addProtocol(protocol.getPrefix(), protocol);
+    }
+
+    public Protocol getProtocol(byte[] prefix) {
+        return protocolHandler.getProtocol(prefix);
+    }
+
+    public Protocol getProtocol(String prefix) {
+        return protocolHandler.getProtocol(prefix);
     }
 
     @Override
