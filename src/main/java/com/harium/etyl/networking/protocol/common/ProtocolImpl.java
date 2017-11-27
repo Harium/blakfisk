@@ -55,4 +55,12 @@ public abstract class ProtocolImpl implements Protocol {
         peers.remove(peer.getId());
     }
 
+    @Override
+    public void tick() {}
+
+    @Override
+    public Map<Integer, Peer> getPeers() {
+        return peers;
+    }
+
 }

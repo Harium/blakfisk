@@ -85,4 +85,36 @@ public abstract class ServerProtocol extends ProtocolImpl {
     public void sendUDPNoPrefix(Peer peer, byte[] message) {
         server.sendToUDP(peer.getId(), ProtocolHandler.packRawMessage(message));
     }
+
+    public void sendWebSocket(int peerId, byte[] message) {
+        ConnectionData data = ProtocolHandler.packMessage(prefix, message);
+        data.connectionType = ConnectionType.WEBSOCKET;
+        server.sendToUDP(peerId, data);
+    }
+
+    public void sendWebSocket(Peer peer, byte[] message) {
+        sendWebSocket(peer.getId(), message);
+    }
+
+    public void sendWebSockettoAll(byte[] message) {
+        ConnectionData data = ProtocolHandler.packMessage(prefix, message);
+        data.connectionType = ConnectionType.WEBSOCKET;
+        server.sendToAllTCP(data);
+    }
+
+    public void sendWebSockettoAll(Collection<Integer> peers, byte[] message) {
+        for (Integer peer : peers) {
+            sendWebSocket(peer, message);
+        }
+    }
+
+    public void sendWebsockettoAllExcept(Peer peer, byte[] message) {
+        ConnectionData data = ProtocolHandler.packMessage(prefix, message);
+        data.connectionType = ConnectionType.WEBSOCKET;
+        server.sendToAllExceptTCP(peer.getId(), data);
+    }
+
+    public void sendWebSocketNoPrefix(Peer peer, byte[] message) {
+        server.sendToTCP(peer.getId(), ProtocolHandler.packRawMessage(message));
+    }
 }

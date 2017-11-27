@@ -9,15 +9,15 @@ public abstract class RawClientProtocol extends ClientProtocol {
         super(prefix, client);
     }
 
-    protected void sendTCP(byte[] message) {
+    public void sendTCP(byte[] message) {
         client.sendToTCP(ProtocolHandler.packMessage(prefix, message));
     }
 
-    protected void sendUDP(byte[] message) {
+    public void sendUDP(byte[] message) {
         client.sendToUDP(ProtocolHandler.packMessage(prefix, message));
     }
 
-    protected void sendWebSocket(byte[] message) {
+    public void sendWebSocket(byte[] message) {
         client.sendToWebSocket(ProtocolHandler.packMessage(prefix, message));
     }
 }

@@ -2,15 +2,12 @@ package com.harium.etyl.networking.protocol;
 
 import com.harium.etyl.networking.model.BaseServer;
 import com.harium.etyl.networking.model.Peer;
-import com.harium.etyl.networking.protocol.common.ProtocolImpl;
+import com.harium.etyl.networking.protocol.common.ServerProtocol;
 
-public abstract class HandshakerProtocol extends ProtocolImpl implements Protocol {
-
-    protected BaseServer server;
+public abstract class HandshakerProtocol extends ServerProtocol implements Protocol {
 
     public HandshakerProtocol(String prefix, BaseServer server) {
-        super(prefix);
-        this.server = server;
+        super(prefix, server);
     }
 
     public void addPeer(Peer peer) {
