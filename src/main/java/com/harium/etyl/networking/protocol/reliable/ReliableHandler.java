@@ -22,10 +22,10 @@ public class ReliableHandler {
     int count = 0;
 
     List<Integer> earlyPackets = new ArrayList<>(MAX_SIZE);
+    Map<Integer, Packet> queue = new HashMap<>(MAX_SIZE);
 
-    private Map<Integer, Packet> packets = new HashMap<>(MAX_SIZE);
     private Set<Integer> leftPeers = new HashSet<>();
-    private Set<Integer> leftBucket = new HashSet<>();
+    private Set<Integer> ignoredPackets = new HashSet<>();
 
     public ReliableHandler(Protocol listener) {
         this.listener = listener;
@@ -41,7 +41,7 @@ public class ReliableHandler {
         if (ByteMessageUtils.equals(PREFIX_ACK, prefix)) {
             byte[] text = ByteMessageUtils.wipePrefix(prefix, message);
             int hash = ByteMessageUtils.bytesToInt(text);
-            packets.remove(hash);
+            queue.remove(hash);
         } else if (ByteMessageUtils.equals(PREFIX_MESSAGE, prefix)) {
             // Remove Prefix
             byte[] text = ByteMessageUtils.subByte(message, 2);
@@ -90,8 +90,12 @@ public class ReliableHandler {
     }
 
     public void notify(Peer peer, byte[] message) {
-        Packet packet = buildPacket(peer, message);
-        packets.put(generateId(), packet);
+        int hashId = generateId();
+        byte[] bytesId = ByteMessageUtils.intToBytes(hashId);
+        byte[] text = ByteMessageUtils.concatenateMessages(bytesId, PREFIX_MESSAGE, message);
+
+        Packet packet = new Packet(peer, text);
+        queue.put(hashId, packet);
     }
 
     public void notifyAll(byte[] message) {
@@ -102,17 +106,12 @@ public class ReliableHandler {
         }
     }
 
-    private Packet buildPacket(Peer peer, byte[] message) {
-        byte[] prefixedMessage = ByteMessageUtils.concatenateMessage(PREFIX_MESSAGE, message);
-        return new Packet(peer, prefixedMessage);
-    }
-
     public void dispatch() {
-        if (packets.isEmpty()) {
+        if (queue.isEmpty()) {
             return;
         }
 
-        Iterator<Map.Entry<Integer, Packet>> iterator = packets.entrySet().iterator();
+        Iterator<Map.Entry<Integer, Packet>> iterator = queue.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, Packet> pair = iterator.next();
 
@@ -120,16 +119,14 @@ public class ReliableHandler {
             Packet packet = pair.getValue();
 
             if (isLeftPeer(packet.getPeer().getId())) {
-                leftBucket.add(id);
+                ignoredPackets.add(id);
                 continue;
             }
 
-            byte[] hashId = ByteMessageUtils.intToBytes(id);
-            byte[] text = ByteMessageUtils.concatenateMessage(hashId, packet.getMessage());
-            listener.sendUDP(packet.getPeer(), text);
+            listener.sendUDP(packet.getPeer(), packet.getMessage());
         }
 
-        handleLeftBucket();
+        handleIgnoredPackets();
         leftPeers.clear();
     }
 
@@ -137,17 +134,17 @@ public class ReliableHandler {
         return !leftPeers.isEmpty() && leftPeers.contains(id);
     }
 
-    private void handleLeftBucket() {
-        if (!leftBucket.isEmpty()) {
-            for (Integer key : leftBucket) {
-                packets.remove(key);
+    private void handleIgnoredPackets() {
+        if (!ignoredPackets.isEmpty()) {
+            for (Integer key : ignoredPackets) {
+                queue.remove(key);
             }
-            leftBucket.clear();
+            ignoredPackets.clear();
         }
     }
 
     private int generateId() {
-        return count++;
+        return ++count;
     }
 
     public void addLeftPeer(int peerId) {

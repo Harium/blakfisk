@@ -12,6 +12,8 @@ import static org.mockito.Mockito.*;
 
 public class ReliableHandlerTest {
 
+    private static final byte SEP = ByteMessageUtils.SEPARATOR_BYTES[0];
+
     Protocol listener;
     ReliableHandler handler;
 
@@ -38,9 +40,13 @@ public class ReliableHandlerTest {
     }
 
     @Test
-    public void testSendNotification() {
-        handler.notify(new DummyPeer(123), "hi".getBytes());
-        Assert.assertEquals(1, handler.packets.size());
+    public void testNotify() {
+        byte[] text = "hi".getBytes();
+        handler.notify(new DummyPeer(123), text);
+        Assert.assertEquals(1, handler.queue.size());
+
+        byte[] message = new byte[]{1, 0, 0, 0, SEP, ReliableHandler.PREFIX_MESSAGE[0], SEP, text[0], text[1]};
+        Assert.assertArrayEquals(message, handler.queue.get(1).getMessage());
     }
 
     @Test
