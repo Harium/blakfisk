@@ -12,8 +12,11 @@ public class ByteMessageUtils {
     public static final byte[] SEPARATOR_BYTES = WHITE_SPACE_STRING.getBytes();
     private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
 
-    public static byte[] getPrefix(byte[] message) {
+    public static byte[] getPrefix(byte[] message, int length) {
+        return Arrays.copyOfRange(message, 0, length);
+    }
 
+    public static byte[] getPrefix(byte[] message) {
         byte[] prefix;
 
         int i = 0;
@@ -47,20 +50,20 @@ public class ByteMessageUtils {
         return destination;
     }
 
-    public static byte[] concatenate(byte[]... array) {
-        int len = 0;
-        for (int i = 0; i < array.length; i++) {
-            len += array[i].length;
-        }
-        byte[] destination = new byte[len];
+    public static byte[] concatenate(byte[]... chunks) {
+        int size = 0;
 
-        int from = 0;
-        for (int i = 0; i < array.length; i++) {
-            System.arraycopy(array[i], 0, destination, from, array[i].length);
-            from += array[i].length;
+        for (byte[] bytes : chunks) {
+            size += bytes.length;
         }
 
-        return destination;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
+
+        for (byte[] bytes : chunks) {
+            byteBuffer.put(bytes);
+        }
+
+        return byteBuffer.array();
     }
 
     public static byte[] concatenateMessage(byte[] prefix, byte[] message) {
@@ -75,17 +78,38 @@ public class ByteMessageUtils {
         return destination;
     }
 
-    public static byte[] wipePrefix(byte[] prefix, byte[] message) {
-        int index = prefix.length + SEPARATOR_BYTES.length;
-        int size = message.length - index;
-        if (size <= 0) {
-            return new byte[0];
+    public static byte[] concatenateMessages(byte[]... chunks) {
+        int size = chunks.length * SEPARATOR_BYTES.length;
+
+        for (byte[] bytes : chunks) {
+            size += bytes.length;
         }
-        byte[] destination = new byte[size];
 
-        System.arraycopy(message, index, destination, 0, destination.length);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
 
-        return destination;
+        int count = 0;
+        for (byte[] bytes : chunks) {
+            byteBuffer.put(bytes);
+
+            if (count < chunks.length) {
+                byteBuffer.put(SEPARATOR_BYTES);
+            }
+            count++;
+        }
+
+        return byteBuffer.array();
+    }
+
+    public static byte[] subByte(byte[] message, int length) {
+        return Arrays.copyOfRange(message, length, message.length);
+    }
+
+    public static byte[] wipePrefix(byte[] message, int length) {
+        return Arrays.copyOfRange(message, length+SEPARATOR_BYTES.length, message.length);
+    }
+
+    public static byte[] wipePrefix(byte[] prefix, byte[] message) {
+        return Arrays.copyOfRange(message, prefix.length + SEPARATOR_BYTES.length, message.length);
     }
 
     public static String wipePrefix(String prefix, String message) {
