@@ -14,7 +14,7 @@ public class ReliableServerProtocol extends ServerProtocol {
 
     public ReliableServerProtocol(String prefix, BaseServer server, Protocol listener) {
         super(prefix, server);
-        handler = new ReliableHandler(listener);
+        handler = new ReliableHandler(this, listener);
     }
 
     @Override
@@ -27,12 +27,12 @@ public class ReliableServerProtocol extends ServerProtocol {
         handler.receiveUDP(peer, message);
     }
 
-    public void notify(Peer peer, String message) {
-        handler.notify(peer, message.getBytes());
-    }
-
     public void notify(Peer peer, byte[] message) {
         handler.notify(peer, message);
+    }
+
+    public void notify(Peer peer, String message) {
+        notify(peer, message.getBytes());
     }
 
     public void notifyAll(byte[] message) {

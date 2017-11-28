@@ -15,7 +15,7 @@ public class ReliableClientProtocol extends ClientProtocol {
 
     public ReliableClientProtocol(String prefix, BaseClient client, Protocol listener) {
         super(prefix, client);
-        handler = new ReliableHandler(listener);
+        handler = new ReliableHandler(this, listener);
     }
 
     @Override

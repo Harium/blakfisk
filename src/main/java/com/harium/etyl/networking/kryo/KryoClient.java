@@ -3,6 +3,7 @@ package com.harium.etyl.networking.kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.harium.etyl.networking.EtylClient;
 import com.harium.etyl.networking.model.BaseClient;
 import com.harium.etyl.networking.model.data.ConnectionData;
 import com.harium.etyl.networking.model.data.RawData;
@@ -17,7 +18,7 @@ public class KryoClient extends Client implements BaseClient {
     protected int udpPort = ProtocolHandler.UNDEFINED_PORT;
 
     protected String host = ProtocolHandler.LOCAL_HOST;
-    protected final KryoPeer SERVER = new KryoPeer(Integer.MIN_VALUE);
+    public static final KryoPeer SERVER = new KryoPeer(Integer.MIN_VALUE);
 
     protected ProtocolHandler protocolHandler = new ProtocolHandler();
 
@@ -59,6 +60,7 @@ public class KryoClient extends Client implements BaseClient {
     }
 
     public void connect() {
+        protocolHandler.addPeer(SERVER);
         super.start();
 
         try {

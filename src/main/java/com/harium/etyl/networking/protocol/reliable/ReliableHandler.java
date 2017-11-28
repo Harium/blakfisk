@@ -16,6 +16,7 @@ public class ReliableHandler {
     public static final byte[] PREFIX_MESSAGE = "M".getBytes();
 
     // Package scope for test purpose
+    Protocol sender;
     Protocol listener;
 
     int lastValidPacket = 0;
@@ -27,7 +28,8 @@ public class ReliableHandler {
     private Set<Integer> leftPeers = new HashSet<>();
     private Set<Integer> ignoredPackets = new HashSet<>();
 
-    public ReliableHandler(Protocol listener) {
+    public ReliableHandler(Protocol sender, Protocol listener) {
+        this.sender = sender;
         this.listener = listener;
     }
 
@@ -46,9 +48,9 @@ public class ReliableHandler {
             // Remove Prefix
             byte[] text = ByteMessageUtils.subByte(message, 2);
             byte[] hashId = notifyListener(peer, text);
-            byte[] response = ByteMessageUtils.concatenateMessage(PREFIX_ACK, hashId);
+            byte[] response = ByteMessageUtils.concatenateMessages(PREFIX_ACK, hashId);
             // Send ack message
-            listener.sendUDP(peer, response);
+            sendUDP(peer, response);
         }
     }
 
@@ -92,7 +94,7 @@ public class ReliableHandler {
     public void notify(Peer peer, byte[] message) {
         int hashId = generateId();
         byte[] bytesId = ByteMessageUtils.intToBytes(hashId);
-        byte[] text = ByteMessageUtils.concatenateMessages(bytesId, PREFIX_MESSAGE, message);
+        byte[] text = ByteMessageUtils.concatenateMessages(PREFIX_MESSAGE, bytesId, message);
 
         Packet packet = new Packet(peer, text);
         queue.put(hashId, packet);
@@ -123,7 +125,7 @@ public class ReliableHandler {
                 continue;
             }
 
-            listener.sendUDP(packet.getPeer(), packet.getMessage());
+            sendUDP(packet.getPeer(), packet.getMessage());
         }
 
         handleIgnoredPackets();
@@ -160,5 +162,9 @@ public class ReliableHandler {
             }
             notify(p, message);
         }
+    }
+
+    private void sendUDP(Peer peer, byte[] message) {
+        sender.sendUDP(peer, message);
     }
 }
