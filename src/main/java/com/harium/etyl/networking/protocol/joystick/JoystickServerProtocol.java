@@ -9,6 +9,8 @@ import java.util.Map;
 
 public class JoystickServerProtocol extends StringServerProtocol {
 
+    private int lastValue = JoystickProtocolUtils.UNDEFINED_VALUE;
+
     protected int size = Joystick.SIZE;
     Map<Integer, Joystick> joysticks;
     JoystickListener listener;
@@ -35,11 +37,13 @@ public class JoystickServerProtocol extends StringServerProtocol {
     @Override
     protected void receiveTCP(Peer peer, String message) {
         handleMessage(peer, message);
+        sendTCP(peer, Integer.toString(lastValue));
     }
 
     @Override
     protected void receiveUDP(Peer peer, String message) {
         handleMessage(peer, message);
+        sendUDP(peer, Integer.toString(lastValue));
     }
 
     private void handleMessage(Peer peer, String message) {
@@ -62,6 +66,7 @@ public class JoystickServerProtocol extends StringServerProtocol {
             }
             index++;
         }
+        lastValue = value;
     }
 
     private Joystick getJoystick(Peer peer) {

@@ -9,17 +9,15 @@ import java.util.Map;
 
 public class JoystickClientProtocol extends StringClientProtocol implements Runnable {
 
-    private static final int UNDEFINED_VALUE = -1;
     int mappedKeys = 0;
-    int lastValue = UNDEFINED_VALUE;
+    int lastValue = JoystickProtocolUtils.UNDEFINED_VALUE;
 
     Joystick joystick;
     Map<Integer, Integer> keyMap;
 
     public JoystickClientProtocol(String prefix, BaseClient client) {
         super(prefix, client);
-        int size = Joystick.SIZE;
-        joystick = new Joystick(size);
+        joystick = new Joystick(Joystick.SIZE);
         keyMap = new HashMap<>(joystick.getSize());
         initKeyMap();
     }
@@ -32,10 +30,16 @@ public class JoystickClientProtocol extends StringClientProtocol implements Runn
 
     @Override
     protected void receiveTCP(Peer peer, String message) {
+        handleMessage(peer, message);
     }
 
     @Override
     protected void receiveUDP(Peer peer, String message) {
+        handleMessage(peer, message);
+    }
+
+    private void handleMessage(Peer peer, String message) {
+        lastValue = Integer.parseInt(message);
     }
 
     /**
@@ -47,7 +51,6 @@ public class JoystickClientProtocol extends StringClientProtocol implements Runn
             // It can be turned into byte array
             sendUDP(Integer.toString(value));
         }
-        lastValue = value;
     }
 
     /**

@@ -2,6 +2,8 @@ package com.harium.etyl.networking.protocol.joystick;
 
 public class JoystickProtocolUtils {
 
+    protected static final int UNDEFINED_VALUE = -1;
+
     public static int booleanToInt(boolean[] array) {
         int result = 0;
         int count = 1;
