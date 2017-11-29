@@ -14,13 +14,15 @@ public class ReliableHandlerTest {
 
     private static final byte SEP = ByteMessageUtils.SEPARATOR_BYTES[0];
 
+    Protocol sender;
     Protocol listener;
     ReliableHandler handler;
 
     @Before
     public void setUp() {
         listener = mock(Protocol.class);
-        handler = new ReliableHandler(listener);
+        sender = mock(Protocol.class);
+        handler = new ReliableHandler(sender, listener);
     }
 
     @Test
@@ -36,7 +38,7 @@ public class ReliableHandlerTest {
         Assert.assertEquals(1, handler.earlyPackets.size());
 
         verify(listener, times(1)).receiveUDP(eq(server), AdditionalMatchers.aryEq(new byte[]{49}));
-        verify(listener, times(1)).sendUDP(eq(server), AdditionalMatchers.aryEq(new byte[]{ReliableHandler.PREFIX_ACK[0], 32, hash[0], hash[1], hash[2], hash[3]}));
+        verify(sender, times(1)).sendUDP(eq(server), AdditionalMatchers.aryEq(new byte[]{ReliableHandler.PREFIX_ACK[0], 32, hash[0], hash[1], hash[2], hash[3]}));
     }
 
     @Test
@@ -45,7 +47,7 @@ public class ReliableHandlerTest {
         handler.notify(new DummyPeer(123), text);
         Assert.assertEquals(1, handler.queue.size());
 
-        byte[] message = new byte[]{1, 0, 0, 0, SEP, ReliableHandler.PREFIX_MESSAGE[0], SEP, text[0], text[1]};
+        byte[] message = new byte[]{ReliableHandler.PREFIX_MESSAGE[0], SEP, 1, 0, 0, 0, SEP, text[0], text[1]};
         Assert.assertArrayEquals(message, handler.queue.get(1).getMessage());
     }
 

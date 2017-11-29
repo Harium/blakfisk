@@ -1,5 +1,6 @@
 package com.harium.etyl.networking.protocol.joystick;
 
+import com.harium.etyl.networking.model.BaseServer;
 import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.test.DummyPeer;
 import org.junit.Assert;
@@ -20,7 +21,9 @@ public class JoystickServerProtocolTest {
     public void setUp() {
         peer = new DummyPeer(999);
         listener = mock(JoystickListener.class);
-        protocol = new JoystickServerProtocol("", null, listener);
+
+        BaseServer server = mock(BaseServer.class);
+        protocol = new JoystickServerProtocol("", server, listener);
         protocol.addPeer(peer);
         protocol.addPeer(new DummyPeer(1000));
     }
