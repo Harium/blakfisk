@@ -7,7 +7,7 @@ import com.harium.etyl.networking.protocol.common.StringClientProtocol;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JoystickClientProtocol extends StringClientProtocol implements Runnable {
+public class JoystickClientProtocol extends StringClientProtocol {
 
     int mappedKeys = 0;
     int lastValue = JoystickProtocolUtils.UNDEFINED_VALUE;
@@ -40,17 +40,6 @@ public class JoystickClientProtocol extends StringClientProtocol implements Runn
 
     private void handleMessage(Peer peer, String message) {
         lastValue = Integer.parseInt(message);
-    }
-
-    /**
-     * Method to dispatch joystick's state as message over UDP
-     */
-    public void sendCommands() {
-        int value = JoystickProtocolUtils.booleanToInt(joystick.getKeys());
-        if (value != lastValue) {
-            // It can be turned into byte array
-            sendUDP(Integer.toString(value));
-        }
     }
 
     /**
@@ -116,9 +105,16 @@ public class JoystickClientProtocol extends StringClientProtocol implements Runn
         return keyMap.containsKey(key);
     }
 
+    /**
+     * Method to dispatch joystick's state over UDP
+     */
     @Override
-    public void run() {
-        sendCommands();
+    public void tick() {
+        super.tick();
+        int value = JoystickProtocolUtils.booleanToInt(joystick.getKeys());
+        if (value != lastValue) {
+            // It can be turned into byte array
+            sendUDP(Integer.toString(value));
+        }
     }
-
 }

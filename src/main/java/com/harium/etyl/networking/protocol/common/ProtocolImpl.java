@@ -8,7 +8,7 @@ import com.harium.etyl.networking.util.ByteMessageUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class ProtocolImpl implements Protocol {
+public abstract class ProtocolImpl implements Protocol, Runnable {
 
     protected byte[] prefix = ByteMessageUtils.EMPTY_BYTES;
     protected Map<Integer, Peer> peers = new LinkedHashMap<>();
@@ -57,6 +57,11 @@ public abstract class ProtocolImpl implements Protocol {
 
     @Override
     public void tick() {}
+
+    @Override
+    public void run() {
+        tick();
+    }
 
     @Override
     public Map<Integer, Peer> getPeers() {

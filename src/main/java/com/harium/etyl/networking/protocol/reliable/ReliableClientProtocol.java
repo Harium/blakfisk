@@ -28,4 +28,9 @@ public class ReliableClientProtocol extends ClientProtocol {
         handler.receiveUDP(peer, message);
     }
 
+    @Override
+    public void tick() {
+        super.tick();
+        handler.dispatch();
+    }
 }
