@@ -116,10 +116,14 @@ public class JoystickClientProtocol extends StringClientProtocol {
     public void tick() {
         super.tick();
         int value = JoystickProtocolUtils.booleanToInt(joystick.getKeys());
-        if (avoidRepeat && value != lastValue) {
+        if (!avoidRepeat || (avoidRepeat && check(value))) {
             // It can be turned into byte array
             sendUDP(Integer.toString(value));
         }
+    }
+
+    boolean check(int value) {
+        return value != lastValue;
     }
 
     public boolean isAvoidRepeat() {

@@ -1,8 +1,14 @@
 package com.harium.etyl.networking.protocol.joystick;
 
+import com.harium.etyl.networking.model.Peer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class JoystickClientProtocolTest {
 
