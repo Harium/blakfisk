@@ -21,12 +21,14 @@ public class ReliableHandler {
 
     int lastValidPacket = 0;
     short count = 0;
+    boolean isLocked = false;
 
-    List<Integer> earlyPackets = new ArrayList<>(MAX_SIZE);
-    Map<Short, Packet> queue = new HashMap<>(MAX_SIZE);
+    List<Short> earlyPackets = new ArrayList<>(MAX_SIZE);
+    List<Packet> queue = new ArrayList<>(MAX_SIZE);
+    List<Packet> lockedQueue = new ArrayList<>(MAX_SIZE);
 
-    private Set<Integer> leftPeers = new HashSet<>();
-    private Set<Short> ignoredPackets = new HashSet<>();
+    private Set<Integer> leftPeers = new HashSet<>(MAX_SIZE);
+    private Set<Short> ignoredPackets = new HashSet<>(MAX_SIZE);
 
     public ReliableHandler(Protocol sender, Protocol listener) {
         this.sender = sender;
@@ -42,8 +44,8 @@ public class ReliableHandler {
 
         if (ByteMessageUtils.equals(PREFIX_ACK, prefix)) {
             byte[] text = ByteMessageUtils.wipePrefix(prefix, message);
-            int hash = ByteMessageUtils.bytesToShort(text);
-            queue.remove(hash);
+            short hash = ByteMessageUtils.bytesToShort(text);
+            removePacket(hash);
         } else if (ByteMessageUtils.equals(PREFIX_MESSAGE, prefix)) {
             // Remove Prefix
             byte[] text = ByteMessageUtils.subByte(message, 2);
@@ -58,7 +60,7 @@ public class ReliableHandler {
         // Get Hash Id
         byte[] hashId = ByteMessageUtils.getPrefix(message, HASH_SIZE);
         byte[] text = ByteMessageUtils.wipePrefix(message, HASH_SIZE);
-        int id = ByteMessageUtils.bytesToShort(hashId);
+        short id = ByteMessageUtils.bytesToShort(hashId);
 
         // Avoid multiples calls to receiveUDP with the same message
         if (!earlyPackets.contains(id)) {
@@ -71,11 +73,11 @@ public class ReliableHandler {
     }
 
     // Package scope for test purpose only
-    void handleHashKey(int id) {
+    void handleHashKey(Short id) {
         if (id == lastValidPacket + 1) {
             lastValidPacket++;
-            List<Integer> toRemove = new ArrayList<>();
-            for (Integer key : earlyPackets) {
+            List<Short> toRemove = new ArrayList<>();
+            for (Short key : earlyPackets) {
                 if (key == lastValidPacket + 1) {
                     lastValidPacket++;
                     toRemove.add(key);
@@ -83,7 +85,7 @@ public class ReliableHandler {
                     toRemove.add(key);
                 }
             }
-            for (Integer key : toRemove) {
+            for (Short key : toRemove) {
                 earlyPackets.remove(key);
             }
         } else {
@@ -97,13 +99,22 @@ public class ReliableHandler {
         byte[] text = ByteMessageUtils.concatenateMessages(PREFIX_MESSAGE, bytesId, message);
 
         Packet packet = new Packet(peer, text);
-        queue.put(hashId, packet);
+        packet.setId(hashId);
+        addPacket(packet);
+    }
+
+    private void addPacket(Packet packet) {
+        if (!isLocked) {
+            queue.add(packet);
+        } else {
+            lockedQueue.add(packet);
+        }
     }
 
     public void notifyAll(byte[] message) {
-        Iterator<Peer> iterator = listener.getPeers().values().iterator();
-        while (iterator.hasNext()) {
-            Peer peer = iterator.next();
+        List<Peer> peers = new ArrayList(listener.getPeers().values());
+
+        for (Peer peer : peers) {
             notify(peer, message);
         }
     }
@@ -113,23 +124,28 @@ public class ReliableHandler {
             return;
         }
 
-        Iterator<Map.Entry<Short, Packet>> iterator = queue.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Short, Packet> pair = iterator.next();
-
-            short id = pair.getKey();
-            Packet packet = pair.getValue();
-
-            if (isLeftPeer(packet.getPeer().getId())) {
-                ignoredPackets.add(id);
-                continue;
-            }
-
-            sendUDP(packet.getPeer(), packet.getMessage());
-        }
-
+        sendMessages();
         handleIgnoredPackets();
-        leftPeers.clear();
+    }
+
+    private void sendMessages() {
+        if (leftPeers.isEmpty()) {
+            for (Packet packet : queue) {
+                sendUDP(packet.getPeer(), packet.getMessage());
+            }
+        } else {
+            for (Packet packet : queue) {
+                short id = packet.getId();
+
+                if (isLeftPeer(packet.getPeer().getId())) {
+                    ignoredPackets.add(id);
+                    continue;
+                }
+
+                sendUDP(packet.getPeer(), packet.getMessage());
+            }
+            leftPeers.clear();
+        }
     }
 
     private boolean isLeftPeer(int id) {
@@ -137,11 +153,35 @@ public class ReliableHandler {
     }
 
     private void handleIgnoredPackets() {
-        if (!ignoredPackets.isEmpty()) {
-            for (Short key : ignoredPackets) {
-                queue.remove(key);
+        if (ignoredPackets.isEmpty()) {
+            return;
+        }
+        lock();
+        for (Short key : ignoredPackets) {
+            removePacket(key);
+        }
+        unlock();
+        ignoredPackets.clear();
+    }
+
+    private void unlock() {
+        if (!lockedQueue.isEmpty()) {
+            queue.addAll(lockedQueue);
+        }
+        isLocked = false;
+    }
+
+    private void lock() {
+        isLocked = true;
+    }
+
+    private void removePacket(short key) {
+        for (int i = queue.size() - 1; i >= 0; i--) {
+            Packet packet = queue.get(i);
+            if (key == packet.getId()) {
+                queue.remove(i);
+                break;
             }
-            ignoredPackets.clear();
         }
     }
 
