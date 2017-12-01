@@ -1,5 +1,6 @@
 package com.harium.etyl.networking.protocol.reliable;
 
+import com.harium.etyl.networking.EtylClient;
 import com.harium.etyl.networking.model.BaseClient;
 import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.protocol.Protocol;
@@ -16,6 +17,14 @@ public class ReliableClientProtocol extends ClientProtocol {
     public ReliableClientProtocol(String prefix, BaseClient client, Protocol listener) {
         super(prefix, client);
         handler = new ReliableHandler(this, listener);
+    }
+
+    public void notify(String message) {
+        notify(message.getBytes());
+    }
+
+    public void notify(byte[] message) {
+        handler.notify(EtylClient.SERVER, message);
     }
 
     @Override
