@@ -116,6 +116,14 @@ public class ByteMessageUtils {
         return new String(wipePrefix(prefix.getBytes(), message.getBytes()));
     }
 
+    public static byte[] shortToBytes(short value) {
+        return ByteBuffer.allocate(2).order(BYTE_ORDER).putShort(value).array();
+    }
+
+    public static short bytesToShort(byte[] bytes) {
+        return ByteBuffer.wrap(bytes).order(BYTE_ORDER).getShort();
+    }
+
     public static byte[] intToBytes(int value) {
         return ByteBuffer.allocate(4).order(BYTE_ORDER).putInt(value).array();
     }

@@ -32,7 +32,7 @@ public class ReliableHandlerTest {
     @Test
     public void testReceiveNotification() {
         DummyPeer server = new DummyPeer();
-        byte[] hash = ByteMessageUtils.intToBytes(123);
+        byte[] hash = ByteMessageUtils.shortToBytes((short)123);
 
         byte[] prefixedHash = ByteMessageUtils.concatenateMessage(ReliableHandler.PREFIX_MESSAGE, hash);
         byte[] text = ByteMessageUtils.concatenateMessage(prefixedHash, CONTENT);
@@ -41,7 +41,7 @@ public class ReliableHandlerTest {
         Assert.assertEquals(1, handler.earlyPackets.size());
 
         verify(listener, times(1)).receiveUDP(eq(server), AdditionalMatchers.aryEq(CONTENT));
-        verify(sender, times(1)).sendUDP(eq(server), AdditionalMatchers.aryEq(new byte[]{ReliableHandler.PREFIX_ACK[0], 32, hash[0], hash[1], hash[2], hash[3]}));
+        verify(sender, times(1)).sendUDP(eq(server), AdditionalMatchers.aryEq(new byte[]{ReliableHandler.PREFIX_ACK[0], 32, hash[0], hash[1]}));
     }
 
     @Test
@@ -49,8 +49,9 @@ public class ReliableHandlerTest {
         handler.notify(new DummyPeer(123), CONTENT);
         Assert.assertEquals(1, handler.queue.size());
 
-        byte[] message = new byte[]{ReliableHandler.PREFIX_MESSAGE[0], SEP, 1, 0, 0, 0, SEP, CONTENT[0], CONTENT[1]};
-        Assert.assertArrayEquals(message, handler.queue.get(1).getMessage());
+        short packetId = 1;
+        byte[] message = new byte[]{ReliableHandler.PREFIX_MESSAGE[0], SEP, 1, 0, SEP, CONTENT[0], CONTENT[1]};
+        Assert.assertArrayEquals(message, handler.queue.get(packetId).getMessage());
     }
 
     @Test

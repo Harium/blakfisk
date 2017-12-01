@@ -10,7 +10,7 @@ import java.util.*;
 public class ReliableHandler {
 
     private static final int MAX_SIZE = 16;
-    private static final int HASH_SIZE = 4;
+    private static final int HASH_SIZE = 2;// Size of Short
 
     public static final byte[] PREFIX_ACK = "A".getBytes();
     public static final byte[] PREFIX_MESSAGE = "M".getBytes();
@@ -20,13 +20,13 @@ public class ReliableHandler {
     Protocol listener;
 
     int lastValidPacket = 0;
-    int count = 0;
+    short count = 0;
 
     List<Integer> earlyPackets = new ArrayList<>(MAX_SIZE);
-    Map<Integer, Packet> queue = new HashMap<>(MAX_SIZE);
+    Map<Short, Packet> queue = new HashMap<>(MAX_SIZE);
 
     private Set<Integer> leftPeers = new HashSet<>();
-    private Set<Integer> ignoredPackets = new HashSet<>();
+    private Set<Short> ignoredPackets = new HashSet<>();
 
     public ReliableHandler(Protocol sender, Protocol listener) {
         this.sender = sender;
@@ -42,7 +42,7 @@ public class ReliableHandler {
 
         if (ByteMessageUtils.equals(PREFIX_ACK, prefix)) {
             byte[] text = ByteMessageUtils.wipePrefix(prefix, message);
-            int hash = ByteMessageUtils.bytesToInt(text);
+            int hash = ByteMessageUtils.bytesToShort(text);
             queue.remove(hash);
         } else if (ByteMessageUtils.equals(PREFIX_MESSAGE, prefix)) {
             // Remove Prefix
@@ -58,7 +58,7 @@ public class ReliableHandler {
         // Get Hash Id
         byte[] hashId = ByteMessageUtils.getPrefix(message, HASH_SIZE);
         byte[] text = ByteMessageUtils.wipePrefix(message, HASH_SIZE);
-        int id = ByteMessageUtils.bytesToInt(hashId);
+        int id = ByteMessageUtils.bytesToShort(hashId);
 
         // Avoid multiples calls to receiveUDP with the same message
         if (!earlyPackets.contains(id)) {
@@ -92,8 +92,8 @@ public class ReliableHandler {
     }
 
     public void notify(Peer peer, byte[] message) {
-        int hashId = generateId();
-        byte[] bytesId = ByteMessageUtils.intToBytes(hashId);
+        short hashId = generateId();
+        byte[] bytesId = ByteMessageUtils.shortToBytes(hashId);
         byte[] text = ByteMessageUtils.concatenateMessages(PREFIX_MESSAGE, bytesId, message);
 
         Packet packet = new Packet(peer, text);
@@ -113,11 +113,11 @@ public class ReliableHandler {
             return;
         }
 
-        Iterator<Map.Entry<Integer, Packet>> iterator = queue.entrySet().iterator();
+        Iterator<Map.Entry<Short, Packet>> iterator = queue.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<Integer, Packet> pair = iterator.next();
+            Map.Entry<Short, Packet> pair = iterator.next();
 
-            int id = pair.getKey();
+            short id = pair.getKey();
             Packet packet = pair.getValue();
 
             if (isLeftPeer(packet.getPeer().getId())) {
@@ -138,14 +138,14 @@ public class ReliableHandler {
 
     private void handleIgnoredPackets() {
         if (!ignoredPackets.isEmpty()) {
-            for (Integer key : ignoredPackets) {
+            for (Short key : ignoredPackets) {
                 queue.remove(key);
             }
             ignoredPackets.clear();
         }
     }
 
-    private int generateId() {
+    private short generateId() {
         return ++count;
     }
 
