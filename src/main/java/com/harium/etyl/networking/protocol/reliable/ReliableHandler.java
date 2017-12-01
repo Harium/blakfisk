@@ -5,7 +5,11 @@ import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.protocol.Protocol;
 import com.harium.etyl.networking.util.ByteMessageUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ReliableHandler {
 
@@ -21,11 +25,9 @@ public class ReliableHandler {
 
     int lastValidPacket = 0;
     short count = 0;
-    boolean isLocked = false;
 
     List<Short> earlyPackets = new ArrayList<>(MAX_SIZE);
     List<Packet> queue = new ArrayList<>(MAX_SIZE);
-    List<Packet> lockedQueue = new ArrayList<>(MAX_SIZE);
 
     private Set<Integer> leftPeers = new HashSet<>(MAX_SIZE);
     private Set<Short> ignoredPackets = new HashSet<>(MAX_SIZE);
@@ -104,11 +106,7 @@ public class ReliableHandler {
     }
 
     private void addPacket(Packet packet) {
-        if (!isLocked) {
-            queue.add(packet);
-        } else {
-            lockedQueue.add(packet);
-        }
+        queue.add(packet);
     }
 
     public void notifyAll(byte[] message) {
@@ -130,11 +128,13 @@ public class ReliableHandler {
 
     private void sendMessages() {
         if (leftPeers.isEmpty()) {
-            for (Packet packet : queue) {
+            List<Packet> list = new CopyOnWriteArrayList<>(queue);
+            for (Packet packet : list) {
                 sendUDP(packet.getPeer(), packet.getMessage());
             }
         } else {
-            for (Packet packet : queue) {
+            List<Packet> list = new CopyOnWriteArrayList<>(queue);
+            for (Packet packet : list) {
                 short id = packet.getId();
 
                 if (isLeftPeer(packet.getPeer().getId())) {
@@ -156,23 +156,10 @@ public class ReliableHandler {
         if (ignoredPackets.isEmpty()) {
             return;
         }
-        lock();
         for (Short key : ignoredPackets) {
             removePacket(key);
         }
-        unlock();
         ignoredPackets.clear();
-    }
-
-    private void unlock() {
-        if (!lockedQueue.isEmpty()) {
-            queue.addAll(lockedQueue);
-        }
-        isLocked = false;
-    }
-
-    private void lock() {
-        isLocked = true;
     }
 
     private void removePacket(short key) {
@@ -194,9 +181,9 @@ public class ReliableHandler {
     }
 
     public void notifyAllExcept(Peer peer, byte[] message) {
-        Iterator<Peer> iterator = listener.getPeers().values().iterator();
-        while (iterator.hasNext()) {
-            Peer p = iterator.next();
+        List<Peer> peers = new ArrayList<>(listener.getPeers().values());
+
+        for (Peer p : peers) {
             if (p.equals(peer)) {
                 continue;
             }
