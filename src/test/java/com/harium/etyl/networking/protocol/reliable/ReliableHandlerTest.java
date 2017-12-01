@@ -32,7 +32,7 @@ public class ReliableHandlerTest {
     @Test
     public void testReceiveNotification() {
         DummyPeer server = new DummyPeer();
-        byte[] hash = ByteMessageUtils.shortToBytes((short)123);
+        byte[] hash = ByteMessageUtils.shortToBytes((short) 123);
 
         byte[] prefixedHash = ByteMessageUtils.concatenateMessage(ReliableHandler.PREFIX_MESSAGE, hash);
         byte[] text = ByteMessageUtils.concatenateMessage(prefixedHash, CONTENT);
@@ -49,9 +49,8 @@ public class ReliableHandlerTest {
         handler.notify(new DummyPeer(123), CONTENT);
         Assert.assertEquals(1, handler.queue.size());
 
-        short packetId = 1;
         byte[] message = new byte[]{ReliableHandler.PREFIX_MESSAGE[0], SEP, 1, 0, SEP, CONTENT[0], CONTENT[1]};
-        Assert.assertArrayEquals(message, handler.queue.get(packetId).getMessage());
+        Assert.assertArrayEquals(message, handler.queue.get(0).getMessage());
     }
 
     @Test
@@ -66,23 +65,23 @@ public class ReliableHandlerTest {
 
     @Test
     public void testHandleHashKey() {
-        handler.handleHashKey(1);
+        handler.handleHashKey((short) 1);
         Assert.assertEquals(1, handler.lastValidPacket);
 
         // Simulate packet loss (2)
         // Simulate packet loss (3)
 
-        handler.handleHashKey(4);
+        handler.handleHashKey((short) 4);
         Assert.assertEquals(1, handler.earlyPackets.size());
         Assert.assertEquals(1, handler.lastValidPacket);
 
         // Packet 2 arrives
-        handler.handleHashKey(2);
+        handler.handleHashKey((short) 2);
         Assert.assertEquals(1, handler.earlyPackets.size());
         Assert.assertEquals(2, handler.lastValidPacket);
 
         // Packet 3 arrives
-        handler.handleHashKey(3);
+        handler.handleHashKey((short) 3);
         Assert.assertEquals(0, handler.earlyPackets.size());
         Assert.assertEquals(4, handler.lastValidPacket);
     }
