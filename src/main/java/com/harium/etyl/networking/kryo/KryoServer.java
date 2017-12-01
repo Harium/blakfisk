@@ -51,10 +51,18 @@ public abstract class KryoServer extends Server implements BaseServer {
             }
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        super.start();
+
+        Thread.UncaughtExceptionHandler exceptionHandler = new Thread.UncaughtExceptionHandler() {
+            public void uncaughtException(Thread th, Throwable e) {
+                e.printStackTrace();
+            }
+        };
+
+        Thread thread = new Thread(this, "Server");
+        thread.setUncaughtExceptionHandler(exceptionHandler);
+        thread.start();
     }
 
     @Override
