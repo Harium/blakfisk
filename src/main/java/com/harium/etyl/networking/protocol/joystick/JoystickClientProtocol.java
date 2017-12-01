@@ -11,6 +11,7 @@ public class JoystickClientProtocol extends StringClientProtocol {
 
     int mappedKeys = 0;
     int lastValue = JoystickProtocolUtils.UNDEFINED_VALUE;
+    boolean avoidRepeat = true;
 
     Joystick joystick;
     Map<Integer, Integer> keyMap;
@@ -39,6 +40,9 @@ public class JoystickClientProtocol extends StringClientProtocol {
     }
 
     private void handleMessage(Peer peer, String message) {
+        if (!avoidRepeat) {
+            return;
+        }
         lastValue = Integer.parseInt(message);
     }
 
@@ -112,9 +116,17 @@ public class JoystickClientProtocol extends StringClientProtocol {
     public void tick() {
         super.tick();
         int value = JoystickProtocolUtils.booleanToInt(joystick.getKeys());
-        if (value != lastValue) {
+        if (avoidRepeat && value != lastValue) {
             // It can be turned into byte array
             sendUDP(Integer.toString(value));
         }
+    }
+
+    public boolean isAvoidRepeat() {
+        return avoidRepeat;
+    }
+
+    public void setAvoidRepeat(boolean avoidRepeat) {
+        this.avoidRepeat = avoidRepeat;
     }
 }
