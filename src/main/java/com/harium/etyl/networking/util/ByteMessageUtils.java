@@ -10,7 +10,6 @@ public class ByteMessageUtils {
     public static final byte[] EMPTY_BYTES = EMPTY_STRING.getBytes();
     public static final String WHITE_SPACE_STRING = " ";
     public static final byte[] SEPARATOR_BYTES = WHITE_SPACE_STRING.getBytes();
-    private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
 
     public static byte[] getPrefix(byte[] message, int length) {
         return Arrays.copyOfRange(message, 0, length);
@@ -114,22 +113,6 @@ public class ByteMessageUtils {
 
     public static String wipePrefix(String prefix, String message) {
         return new String(wipePrefix(prefix.getBytes(), message.getBytes()));
-    }
-
-    public static byte[] shortToBytes(short value) {
-        return ByteBuffer.allocate(2).order(BYTE_ORDER).putShort(value).array();
-    }
-
-    public static short bytesToShort(byte[] bytes) {
-        return ByteBuffer.wrap(bytes).order(BYTE_ORDER).getShort();
-    }
-
-    public static byte[] intToBytes(int value) {
-        return ByteBuffer.allocate(4).order(BYTE_ORDER).putInt(value).array();
-    }
-
-    public static int bytesToInt(byte[] array) {
-        return ByteBuffer.wrap(array).order(BYTE_ORDER).getInt();
     }
 
     public static boolean equals(String a, String b) {
