@@ -5,6 +5,7 @@ import com.harium.etyl.networking.protocol.Protocol;
 import com.harium.etyl.networking.protocol.common.ProtocolImpl;
 import com.harium.etyl.networking.test.DummyPeer;
 import com.harium.etyl.networking.util.ByteMessageUtils;
+import com.harium.etyl.networking.util.ByteUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class ReliableHandlerTest {
     @Test
     public void testReceiveNotification() {
         DummyPeer server = new DummyPeer();
-        byte[] hash = ByteMessageUtils.shortToBytes((short) 123);
+        byte[] hash = ByteUtils.shortToBytes((short) 123);
 
         byte[] prefixedHash = ByteMessageUtils.concatenateMessage(ReliableHandler.PREFIX_MESSAGE, hash);
         byte[] text = ByteMessageUtils.concatenateMessage(prefixedHash, CONTENT);

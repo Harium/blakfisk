@@ -4,6 +4,7 @@ import com.harium.etyl.networking.model.Packet;
 import com.harium.etyl.networking.model.Peer;
 import com.harium.etyl.networking.protocol.Protocol;
 import com.harium.etyl.networking.util.ByteMessageUtils;
+import com.harium.etyl.networking.util.ByteUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,7 +47,7 @@ public class ReliableHandler {
 
         if (ByteMessageUtils.equals(PREFIX_ACK, prefix)) {
             byte[] text = ByteMessageUtils.wipePrefix(prefix, message);
-            short hash = ByteMessageUtils.bytesToShort(text);
+            short hash = ByteUtils.bytesToShort(text);
             removePacket(hash);
         } else if (ByteMessageUtils.equals(PREFIX_MESSAGE, prefix)) {
             // Remove Prefix
@@ -62,7 +63,7 @@ public class ReliableHandler {
         // Get Hash Id
         byte[] hashId = ByteMessageUtils.getPrefix(message, HASH_SIZE);
         byte[] text = ByteMessageUtils.wipePrefix(message, HASH_SIZE);
-        short id = ByteMessageUtils.bytesToShort(hashId);
+        short id = ByteUtils.bytesToShort(hashId);
 
         // Avoid multiples calls to receiveUDP with the same message
         if (!earlyPackets.contains(id)) {
@@ -97,7 +98,7 @@ public class ReliableHandler {
 
     public void notify(Peer peer, byte[] message) {
         short hashId = generateId();
-        byte[] bytesId = ByteMessageUtils.shortToBytes(hashId);
+        byte[] bytesId = ByteUtils.shortToBytes(hashId);
         byte[] text = ByteMessageUtils.concatenateMessages(PREFIX_MESSAGE, bytesId, message);
 
         Packet packet = new Packet(peer, text);
