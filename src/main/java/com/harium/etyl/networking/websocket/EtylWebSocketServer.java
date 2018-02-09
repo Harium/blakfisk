@@ -15,14 +15,15 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public abstract class EtylWebSocketServer extends WebSocketServer implements BaseServer {
 
     int counter = 0;
     ProtocolHandler serverHandler = new ProtocolHandler();
-    Map<String, WebSocketPeer> peers = new HashMap<>();
     Map<Integer, WebSocketPeer> peerIds = new HashMap<>();
+    protected Map<String, WebSocketPeer> peers = new HashMap<>();
 
     public EtylWebSocketServer(int port) {
         super(new InetSocketAddress(port));
@@ -84,12 +85,12 @@ public abstract class EtylWebSocketServer extends WebSocketServer implements Bas
 
     @Override
     public Peer getPeer(int id) {
-        return peers.get(id);
+        return peerIds.get(id);
     }
 
     @Override
     public boolean hasPeer(int id) {
-        return peers.containsKey(id);
+        return peerIds.containsKey(id);
     }
 
     /**
@@ -138,7 +139,9 @@ public abstract class EtylWebSocketServer extends WebSocketServer implements Bas
 
     @Override
     public void sendToAllTCP(ConnectionData connectionData) {
-        for (WebSocketPeer peer : peers.values()) {
+        Iterator<WebSocketPeer> iterator = peers.values().iterator();
+        while (iterator.hasNext()) {
+            WebSocketPeer peer = iterator.next();
             WebSocket webSocket = peer.getWebSocket();
 
             byte[] data = ByteMessageUtils.concatenateMessage(connectionData.prefix, connectionData.data);
@@ -148,7 +151,9 @@ public abstract class EtylWebSocketServer extends WebSocketServer implements Bas
 
     @Override
     public void sendToAllExceptTCP(int id, ConnectionData connectionData) {
-        for (WebSocketPeer peer : peers.values()) {
+        Iterator<WebSocketPeer> iterator = peers.values().iterator();
+        while (iterator.hasNext()) {
+            WebSocketPeer peer = iterator.next();
             if (id == peer.getId()) {
                 continue;
             }
@@ -161,21 +166,21 @@ public abstract class EtylWebSocketServer extends WebSocketServer implements Bas
 
     @Override
     public void sendToUDP(int id, ConnectionData connectionData) {
-
+        sendToTCP(id, connectionData);
     }
 
     @Override
     public void sendToUDP(int id, RawData rawData) {
-
+        sendToTCP(id, rawData);
     }
 
     @Override
     public void sendToAllUDP(ConnectionData connectionData) {
-
+        sendToAllTCP(connectionData);
     }
 
     @Override
     public void sendToAllExceptUDP(int id, ConnectionData connectionData) {
-
+        sendToAllExceptTCP(id, connectionData);
     }
 }
