@@ -1,16 +1,16 @@
 # Etyl Networking
-A networking framework over kryonet
+A networking framework in pure Java
 
 ## Maven
 ```
 <dependency>
     <groupId>com.harium.etyl.networking</groupId>
-    <artifactId>networking</artifactId>
-    <version>1.1.2</version>
+    <artifactId>core</artifactId>
+    <version>1.3.0</version>
 </dependency>
 ```
 
 ## Gradle
 ```
-compile "com.harium.etyl.networking:networking:1.1.2"
+compile "com.harium.etyl.networking:core:1.3.0"
 ```
