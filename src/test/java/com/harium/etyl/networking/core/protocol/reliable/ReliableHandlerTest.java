@@ -2,6 +2,7 @@ package com.harium.etyl.networking.core.protocol.reliable;
 
 import com.harium.etyl.networking.core.helper.ByteHelper;
 import com.harium.etyl.networking.core.helper.ByteMessageHelper;
+import com.harium.etyl.networking.core.model.Packet;
 import com.harium.etyl.networking.core.model.Peer;
 import com.harium.etyl.networking.core.protocol.Protocol;
 import com.harium.etyl.networking.core.protocol.common.ProtocolImpl;
@@ -41,8 +42,13 @@ public class ReliableHandlerTest {
         handler.receiveUDP(server, text);
         Assert.assertEquals(1, handler.earlyPackets.size());
 
-        verify(listener, times(1)).receiveUDP(eq(server), AdditionalMatchers.aryEq(CONTENT));
+        verify(listener, times(0)).receiveUDP(eq(server), AdditionalMatchers.aryEq(CONTENT));
         verify(sender, times(1)).sendUDP(eq(server), AdditionalMatchers.aryEq(new byte[]{ReliableHandler.PREFIX_ACK[0], 32, hash[0], hash[1]}));
+
+        // Offset lastValidPacket
+        handler.lastValidPacket = 122;
+        handler.receiveUDP(server, text);
+        verify(listener, times(1)).receiveUDP(eq(server), AdditionalMatchers.aryEq(CONTENT));
     }
 
     @Test
@@ -51,7 +57,7 @@ public class ReliableHandlerTest {
         Assert.assertEquals(1, handler.queue.size());
 
         byte[] message = new byte[]{ReliableHandler.PREFIX_MESSAGE[0], SEP, 1, 0, SEP, CONTENT[0], CONTENT[1]};
-        Assert.assertArrayEquals(message, handler.queue.get(0).getMessage());
+        Assert.assertArrayEquals(message, handler.queue.get((short) 1).getMessage());
     }
 
     @Test
@@ -65,26 +71,45 @@ public class ReliableHandlerTest {
     }
 
     @Test
-    public void testHandleHashKey() {
-        handler.handleHashKey((short) 1);
+    public void testHandlePacket() {
+        Packet packet1 = buildPacket((short) 1, "1");
+
+        handler.handlePacket(packet1);
+        verify(listener, times(1)).receiveUDP(any(Peer.class), eq("1".getBytes()));
         Assert.assertEquals(1, handler.lastValidPacket);
 
         // Simulate packet loss (2)
         // Simulate packet loss (3)
 
-        handler.handleHashKey((short) 4);
+        Packet packet4 = buildPacket((short) 4, "4");
+
+        handler.handlePacket(packet4);
+        // Persisted packet 4
+        verify(listener, times(1)).receiveUDP(any(Peer.class), any(byte[].class));
         Assert.assertEquals(1, handler.earlyPackets.size());
         Assert.assertEquals(1, handler.lastValidPacket);
 
+        Packet packet2 = buildPacket((short) 2, "2");
         // Packet 2 arrives
-        handler.handleHashKey((short) 2);
+        handler.handlePacket(packet2);
+        // Received packet 2
+        verify(listener, times(2)).receiveUDP(any(Peer.class), any(byte[].class));
         Assert.assertEquals(1, handler.earlyPackets.size());
         Assert.assertEquals(2, handler.lastValidPacket);
 
         // Packet 3 arrives
-        handler.handleHashKey((short) 3);
+        Packet packet3 = buildPacket((short) 3, "3");
+        handler.handlePacket(packet3);
+        // Received packet 3 and 4
+        verify(listener, times(4)).receiveUDP(any(Peer.class), any(byte[].class));
         Assert.assertEquals(0, handler.earlyPackets.size());
         Assert.assertEquals(4, handler.lastValidPacket);
+    }
+
+    private Packet buildPacket(short id, String message) {
+        Packet packet = new Packet(null, message.getBytes());
+        packet.setId(id);
+        return packet;
     }
 
     Protocol otherListener = new ProtocolImpl(new byte[]{1}) {

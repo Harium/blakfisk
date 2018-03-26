@@ -1,16 +1,12 @@
 package com.harium.etyl.networking.core.protocol.reliable;
 
+import com.harium.etyl.networking.core.helper.ByteHelper;
+import com.harium.etyl.networking.core.helper.ByteMessageHelper;
 import com.harium.etyl.networking.core.model.Packet;
 import com.harium.etyl.networking.core.model.Peer;
 import com.harium.etyl.networking.core.protocol.Protocol;
-import com.harium.etyl.networking.core.helper.ByteMessageHelper;
-import com.harium.etyl.networking.core.helper.ByteHelper;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
 
 public class ReliableHandler {
 
@@ -24,14 +20,13 @@ public class ReliableHandler {
     Protocol sender;
     Protocol listener;
 
-    int lastValidPacket = 0;
+    short lastValidPacket = 0;
     short count = 0;
 
-    List<Short> earlyPackets = new ArrayList<>(MAX_SIZE);
-    List<Packet> queue = new ArrayList<>(MAX_SIZE);
+    Map<Short, Packet> earlyPackets = new LinkedHashMap<>(MAX_SIZE);
+    Map<Short, Packet> queue = new LinkedHashMap<>(MAX_SIZE);
 
     private Set<Integer> leftPeers = new HashSet<>(MAX_SIZE);
-    private Set<Short> ignoredPackets = new HashSet<>(MAX_SIZE);
 
     public ReliableHandler(Protocol sender, Protocol listener) {
         this.sender = sender;
@@ -54,6 +49,7 @@ public class ReliableHandler {
             byte[] text = ByteMessageHelper.subByte(message, 2);
             byte[] hashId = notifyListener(peer, text);
             byte[] response = ByteMessageHelper.concatenateMessages(PREFIX_ACK, hashId);
+
             // Send ack message
             sendUDP(peer, response);
         }
@@ -65,35 +61,43 @@ public class ReliableHandler {
         byte[] text = ByteMessageHelper.wipePrefix(message, HASH_SIZE);
         short id = ByteHelper.bytesToShort(hashId);
 
-        // Avoid multiples calls to receiveUDP with the same message
-        if (!earlyPackets.contains(id)) {
-            handleHashKey(id);
-            // Handle text
-            listener.receiveUDP(peer, text);
-        }
+        Packet packet = new Packet(peer, text);
+        packet.setId(id);
+
+        handlePacket(packet);
 
         return hashId;
     }
 
     // Package scope for test purpose only
-    void handleHashKey(Short id) {
+    void handlePacket(Packet packet) {
+        short id = packet.getId();
+        // If packet is the next id, order is fine
         if (id == lastValidPacket + 1) {
             lastValidPacket++;
-            List<Short> toRemove = new ArrayList<>();
-            for (Short key : earlyPackets) {
-                if (key == lastValidPacket + 1) {
-                    lastValidPacket++;
-                    toRemove.add(key);
-                } else if (key < lastValidPacket) {
-                    toRemove.add(key);
-                }
+            // Receive the packet
+            receivePacket(packet);
+
+            // Handle next packets
+            short nextId = (short) (lastValidPacket + 1);
+            while (earlyPackets.containsKey(nextId)) {
+                // Handle packet
+                Packet p = earlyPackets.get(nextId);
+                lastValidPacket++;
+                receivePacket(p);
+
+                // Remove the received packet
+                earlyPackets.remove(nextId);
+                nextId++;
             }
-            for (Short key : toRemove) {
-                earlyPackets.remove(key);
-            }
-        } else {
-            earlyPackets.add(id);
+        } else if (id > lastValidPacket) {
+            // If packet arrived early, add to early packets
+            earlyPackets.put(id, packet);
         }
+    }
+
+    private void receivePacket(Packet packet) {
+        listener.receiveUDP(packet.getPeer(), packet.getMessage());
     }
 
     public void notify(Peer peer, byte[] message) {
@@ -107,13 +111,14 @@ public class ReliableHandler {
     }
 
     private void addPacket(Packet packet) {
-        queue.add(packet);
+        queue.put(packet.getId(), packet);
     }
 
     public void notifyAll(byte[] message) {
-        List<Peer> peers = new ArrayList(listener.getPeers().values());
+        Iterator<Peer> iterator = listener.getPeers().values().iterator();
 
-        for (Peer peer : peers) {
+        while (iterator.hasNext()) {
+            Peer peer = iterator.next();
             notify(peer, message);
         }
     }
@@ -124,22 +129,22 @@ public class ReliableHandler {
         }
 
         sendMessages();
-        handleIgnoredPackets();
     }
 
     private void sendMessages() {
+        Iterator<Map.Entry<Short, Packet>> iterator = queue.entrySet().iterator();
+
         if (leftPeers.isEmpty()) {
-            List<Packet> list = new CopyOnWriteArrayList<>(queue);
-            for (Packet packet : list) {
+            while (iterator.hasNext()) {
+                Packet packet = iterator.next().getValue();
                 sendUDP(packet.getPeer(), packet.getMessage());
             }
         } else {
-            List<Packet> list = new CopyOnWriteArrayList<>(queue);
-            for (Packet packet : list) {
-                short id = packet.getId();
+            while (iterator.hasNext()) {
+                Packet packet = iterator.next().getValue();
 
                 if (isLeftPeer(packet.getPeer().getId())) {
-                    ignoredPackets.add(id);
+                    iterator.remove();
                     continue;
                 }
 
@@ -153,24 +158,8 @@ public class ReliableHandler {
         return !leftPeers.isEmpty() && leftPeers.contains(id);
     }
 
-    private void handleIgnoredPackets() {
-        if (ignoredPackets.isEmpty()) {
-            return;
-        }
-        for (Short key : ignoredPackets) {
-            removePacket(key);
-        }
-        ignoredPackets.clear();
-    }
-
     private void removePacket(short key) {
-        for (int i = queue.size() - 1; i >= 0; i--) {
-            Packet packet = queue.get(i);
-            if (key == packet.getId()) {
-                queue.remove(i);
-                break;
-            }
-        }
+        queue.remove(key);
     }
 
     private short generateId() {
@@ -182,9 +171,11 @@ public class ReliableHandler {
     }
 
     public void notifyAllExcept(Peer peer, byte[] message) {
-        List<Peer> peers = new ArrayList<>(listener.getPeers().values());
+        Iterator<Peer> iterator = listener.getPeers().values().iterator();
 
-        for (Peer p : peers) {
+        while (iterator.hasNext()) {
+            Peer p = iterator.next();
+
             if (p.equals(peer)) {
                 continue;
             }
