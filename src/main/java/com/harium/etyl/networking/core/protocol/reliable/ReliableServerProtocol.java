@@ -7,7 +7,7 @@ import com.harium.etyl.networking.core.protocol.common.ServerProtocol;
 
 public class ReliableServerProtocol extends ServerProtocol {
 
-    ReliableHandler handler;
+    protected ReliableHandler handler;
 
     public ReliableServerProtocol(String prefix, BaseServer server, Protocol listener) {
         super(prefix, server);
@@ -16,6 +16,7 @@ public class ReliableServerProtocol extends ServerProtocol {
 
     @Override
     public void receiveTCP(Peer peer, byte[] message) {
+        // Bypass TCP Messages
         handler.receiveTCP(peer, message);
     }
 
@@ -55,8 +56,14 @@ public class ReliableServerProtocol extends ServerProtocol {
     }
 
     @Override
+    public void addPeer(Peer peer) {
+        super.addPeer(peer);
+        handler.addPeer(peer);
+    }
+
+    @Override
     public void removePeer(Peer peer) {
         super.removePeer(peer);
-        handler.addLeftPeer(peer.getId());
+        handler.removePeer(peer);
     }
 }

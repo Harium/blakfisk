@@ -12,6 +12,7 @@ public class ReliableClientProtocol extends ClientProtocol {
     public ReliableClientProtocol(String prefix, BaseClient client, Protocol listener) {
         super(prefix, client);
         handler = new ReliableHandler(this, listener);
+        handler.addPeer(ClientProtocol.SERVER);
     }
 
     public void notify(String message) {
