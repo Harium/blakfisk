@@ -3,12 +3,21 @@ package com.harium.etyl.networking.core.helper;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ByteMessageUtilsTest {
+public class ByteMessageHelperTest {
 
     public static final byte SEP = ByteMessageHelper.SEPARATOR_BYTES[0];
 
     @Test
     public void testConcatenate() {
+        String message = "BC";
+        String prefix = "A";
+        String result = new String(ByteMessageHelper.concatenate(prefix.getBytes(), message.getBytes()));
+
+        Assert.assertEquals("ABC", result);
+    }
+
+    @Test
+    public void testConcatenateMessage() {
         String message = "my friend";
         String prefix = "Hello";
         String result = new String(ByteMessageHelper.concatenateMessage(prefix.getBytes(), message.getBytes()));
@@ -85,6 +94,15 @@ public class ByteMessageUtilsTest {
         byte[] slice = ByteMessageHelper.subByte(message, 4);
 
         Assert.assertArrayEquals(new byte[]{99}, slice);
+    }
+
+    @Test
+    public void testEquals() {
+        String a = "A";
+        String b = "B";
+
+        Assert.assertTrue(ByteMessageHelper.equals("A", a));
+        Assert.assertFalse(ByteMessageHelper.equals(a, b));
     }
 
 }

@@ -1,7 +1,6 @@
 package com.harium.etyl.networking.core.helper;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class ByteMessageHelper {
@@ -52,17 +51,19 @@ public class ByteMessageHelper {
     public static byte[] concatenate(byte[]... chunks) {
         int size = 0;
 
-        for (byte[] bytes : chunks) {
-            size += bytes.length;
+        for (byte[] chunk : chunks) {
+            size += chunk.length;
         }
 
-        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
+        byte[] dest = new byte[size];
 
-        for (byte[] bytes : chunks) {
-            byteBuffer.put(bytes);
+        int offset = 0;
+        for (byte[] chunk : chunks) {
+            System.arraycopy(chunk, 0, dest, offset, chunk.length);
+            offset += chunk.length;
         }
 
-        return byteBuffer.array();
+        return dest;
     }
 
     public static byte[] concatenateMessage(byte[] prefix, byte[] message) {
@@ -80,23 +81,29 @@ public class ByteMessageHelper {
     public static byte[] concatenateMessages(byte[]... chunks) {
         int size = chunks.length * SEPARATOR_BYTES.length - 1;
 
-        for (byte[] bytes : chunks) {
-            size += bytes.length;
+        for (byte[] chunk : chunks) {
+            size += chunk.length;
         }
 
-        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
+        // size + separators
+        byte[] dest = new byte[size];
 
         int count = 0;
-        for (byte[] bytes : chunks) {
-            byteBuffer.put(bytes);
+        int offset = 0;
+        for (byte[] chunk : chunks) {
+            System.arraycopy(chunk, 0, dest, offset, chunk.length);
+            offset += chunk.length;
 
             if (count < chunks.length - 1) {
-                byteBuffer.put(SEPARATOR_BYTES);
+                // TODO Iterate over separator bytes if needed
+                dest[offset] = SEPARATOR_BYTES[0];
             }
+
+            offset += SEPARATOR_BYTES.length;
             count++;
         }
 
-        return byteBuffer.array();
+        return dest;
     }
 
     public static byte[] subByte(byte[] message, int length) {
